@@ -1,0 +1,2629 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FORONE | PRO V41 - PDF-развёртки</title>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
+    <style>
+        :root {
+            --bg-dark: #0f1412; --bg-panel: #17201c; --bg-input: #22302a;
+            --text-main: #e2e8e5; --text-muted: #8ba397;
+            --accent: #6ee7b7; --accent-hover: #34d399;
+            --success: #10b981; --danger: #ef4444; --border: #2d3f37;
+            --shadow: rgba(0,0,0,0.6); --glow: rgba(110, 231, 183, 0.2);
+            --brand-logo-bg: none;
+        }
+        .theme-emerald { --bg-dark: #06120e; --bg-panel: #0f241b; --bg-input: #1a3a2a; --text-main: #e0f2eb; --text-muted: #6b9e85; --accent: #fbbf24; --accent-hover: #f59e0b; --border: #26523b; --glow: rgba(251, 191, 36, 0.2); }
+        .theme-matcha  { --bg-dark: #1e2220; --bg-panel: #2a302d; --bg-input: #3a423e; --text-main: #e6ebe8; --text-muted: #9daaa3; --accent: #86efac; --accent-hover: #4ade80; --border: #45524b; --glow: rgba(134, 239, 172, 0.2); }
+        .theme-light   { --bg-dark: #eef2ec; --bg-panel: #ffffff; --bg-input: #e2eadf; --text-main: #2c3b33; --text-muted: #6b7f73; --accent: #059669; --accent-hover: #047857; --border: #cbd8d1; --shadow: rgba(0,0,0,0.1); --glow: rgba(5, 150, 105, 0.15); }
+        .theme-golden  { --bg-dark: #141210; --bg-panel: #201c17; --bg-input: #302a23; --text-main: #f4ece1; --text-muted: #a89a87; --accent: #eab308; --accent-hover: #ca8a04; --border: #42372b; --glow: rgba(234, 179, 8, 0.2); }
+        .theme-brand   { --bg-dark: #f4f7f5; --bg-panel: #ffffff; --bg-input: #e8efe9; --text-main: #1e3124; --text-muted: #66806c; --accent: #4a7c59; --accent-hover: #366344; --border: #d0ded3; --shadow: rgba(0,0,0,0.08); --glow: rgba(74, 124, 89, 0.2); --brand-logo-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05"><path d="M40,90 Q45,60 60,20 Q65,10 70,5 Q72,15 65,30 Q50,70 45,90 Z" fill="%234a7c59"/><path d="M60,90 Q55,60 40,25 Q38,15 35,10 Q30,20 38,35 Q45,70 50,90 Z" fill="%234a7c59"/></svg>'); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: background-color 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s; }
+        body { background: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 var(--glow); } 70% { box-shadow: 0 0 0 10px rgba(0,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #projectsView { position: fixed; inset: 0; background: var(--bg-dark); z-index: 999; display: flex; flex-direction: column; padding: 40px; overflow-y: auto; }
+        .projects-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .projects-header h2 { color: var(--accent); font-size: 26px; }
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .project-card { position: relative; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px var(--shadow); }
+        .project-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 25px var(--glow); }
+        .project-card h3 { color: var(--text-main); font-size: 16px; padding-right: 25px; }
+        .project-card p { color: var(--text-muted); font-size: 13px; }
+        .project-card .proj-total { color: var(--accent); font-weight: bold; font-size: 18px; margin-top: auto; }
+        .project-card .proj-date { font-size: 11px; color: var(--text-muted); }
+        .project-card .btn-delete-proj { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: var(--danger); cursor: pointer; padding: 5px; font-size: 14px; opacity: 0.6; transition: 0.2s; }
+        .project-card .btn-delete-proj:hover { opacity: 1; transform: scale(1.1); }
+        .empty-projects { text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 50px 0; font-size: 16px; }
+
+        #editorView { display: none; width: 100%; height: 100vh; flex-direction: row; }
+        .sidebar { width: 400px; min-width: 260px; max-width: 800px; flex-shrink: 0; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; height: 100vh; overflow-y: auto; box-shadow: 2px 0 15px var(--shadow); transition: transform 0.3s ease; }
+        .logo { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; flex-shrink: 0; animation: slideUp 0.4s ease; }
+        .logo-svg { height: 35px; width: auto; fill: var(--accent); }
+        .logo h1 { font-size: 18px; font-weight: 700; letter-spacing: 1px; color: var(--text-main); line-height: 1.1; }
+        .logo span { font-size: 11px; color: var(--text-muted); font-weight: 400; display: block; margin-top: 2px; }
+        .back-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; padding: 5px; transition: 0.2s; margin-right: -5px;}
+        .back-btn:hover { color: var(--accent); }
+        .panel-content { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); font-weight: 700; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .input-row { display: flex; gap: 12px; margin-bottom: 8px; }
+        .input-group { flex: 1; }
+        .input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+        .input-group input, .input-group select { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 16px; outline: none; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+        .stats-bar { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; gap: 10px; font-size: 11px; margin-bottom: 8px; flex-wrap: wrap; box-shadow: inset 0 2px 5px var(--shadow); }
+        .stats-bar b { color: var(--accent); font-size: 13px; }
+        .stats-bar span { display: flex; align-items: center; gap: 5px; }
+        .zones-container { display: flex; flex-direction: column; min-height: 150px; flex-grow: 1; }
+        .zones-list { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; flex-grow: 1; overflow-y: auto; min-height: 100px; max-height: 500px; box-shadow: inset 0 2px 5px var(--shadow); }
+        .zone-item { padding: 10px; border-bottom: 1px solid var(--border); border-left: 3px solid transparent; display: flex; justify-content: space-between; align-items: center; font-size: 12px; cursor: pointer; }
+        .zone-item:hover, .zone-item.hovered { background: var(--bg-input); border-left-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+        .zone-badge { padding: 3px 6px; border-radius: 4px; font-weight: 700; font-size: 10px; }
+        .badge-panel { background: var(--glow); color: var(--accent); }
+        .zone-dimensions { display: flex; align-items: center; gap: 4px; margin-top: 5px; }
+        .dim-input { width: 55px !important; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); text-align: center; padding: 4px; border-radius: 4px; font-size: 16px; }
+        .zone-controls { display: flex; align-items: center; gap: 6px; }
+        .zone-controls input { width: 40px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); text-align: center; padding: 4px; border-radius: 4px; font-size: 16px;}
+        .btn-icon { background: transparent; border: none; cursor: pointer; font-size: 13px; padding: 4px; color: var(--danger); opacity: 0.7; }
+        .btn-icon:hover { opacity: 1; transform: scale(1.1); }
+        .btn-icon.copy { color: var(--accent); }
+        .workspace { flex-grow: 1; display: flex; flex-direction: column; position: relative; background: var(--bg-dark); overflow: hidden; height: 100vh; }
+        .top-bar { min-height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; flex-shrink: 0; z-index: 5; box-shadow: 0 4px 15px var(--shadow); }
+        .top-bar .info-text { font-size: 13px; color: var(--text-muted); font-style: italic; }
+        .btn-action { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; white-space: nowrap; }
+        .btn-action:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--glow); transform: translateY(-1px); }
+        .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-primary { background: var(--accent); color: #fff; border: none; box-shadow: 0 4px 15px var(--glow); }
+        .theme-light .btn-primary, .theme-brand .btn-primary { color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 6px 20px var(--glow); }
+        .btn-danger { color: var(--danger); border-color: var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+        .canvas-container { flex-grow: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; padding: 20px; background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 20px 20px; }
+        .theme-brand .canvas-container { background-color: var(--bg-dark); background-image: var(--brand-logo-bg), radial-gradient(var(--border) 1px, transparent 1px); background-size: 60% auto, 20px 20px; background-position: center center, top left; background-repeat: no-repeat, repeat; }
+        .floating-tools-wrapper { position: absolute; top: 20px; left: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; z-index: 30; }
+        .floating-tools { background: rgba(28, 31, 38, 0.9); border: 1px solid var(--border); padding: 8px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 5px 20px var(--shadow); backdrop-filter: blur(10px); }
+        .theme-light .floating-tools, .theme-brand .floating-tools { background: rgba(255, 255, 255, 0.95); }
+        .floating-tools .tool-btn { width: 44px; height: 44px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; font-size: 10px; font-weight: 600; color: var(--text-main); cursor: pointer; white-space: nowrap; }
+        .floating-tools .tool-btn:hover { background: var(--bg-input); }
+        .floating-tools .tool-btn.active { background: var(--glow); border-color: var(--accent); color: var(--accent); }
+        .floating-tools .tool-btn i { font-size: 18px; }
+        .floating-louver-settings { background: rgba(28, 31, 38, 0.9); border: 1px solid var(--border); padding: 8px 12px; border-radius: 10px; box-shadow: 0 5px 20px var(--shadow); backdrop-filter: blur(10px); display: none; flex-direction: column; gap: 6px; width: 200px; }
+        .theme-light .floating-louver-settings, .theme-brand .floating-louver-settings { background: rgba(255, 255, 255, 0.95); }
+        .floating-louver-settings label { font-size: 11px; color: var(--text-muted); }
+        .floating-louver-settings select { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 6px 10px; border-radius: 6px; font-size: 14px; outline: none; width: 100%; }
+        canvas { max-width: 100%; max-height: 100%; object-fit: contain; cursor: crosshair; box-shadow: 0 0 40px var(--shadow); touch-action: none; user-select: none; transform-origin: center center; border-radius: 4px; }
+        .empty-state { position: absolute; text-align: center; color: var(--text-muted); pointer-events: none; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-panel); padding: 20px 40px; border-radius: 12px; border: 1px dashed var(--border); }
+        .zoom-controls { position: absolute; bottom: 20px; right: 20px; background: rgba(15, 20, 18, 0.85); border: 1px solid var(--border); padding: 10px 15px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 20; box-shadow: 0 5px 20px var(--shadow); backdrop-filter: blur(10px); }
+        .theme-light .zoom-controls, .theme-brand .zoom-controls { background: rgba(255, 255, 255, 0.9); }
+        .zoom-buttons-row { display: flex; align-items: center; gap: 10px; }
+        .zoom-btn { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); border-radius: 6px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 18px; }
+        .zoom-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+        .zoom-controls input[type="range"] { width: 100px; cursor: pointer; accent-color: var(--accent); }
+        .zoom-text { font-size: 12px; font-weight: 700; color: var(--accent); }
+        .invoice-panel { background: var(--bg-panel); border-top: 2px solid var(--accent); padding: 15px 20px; flex-shrink: 0; height: 35vh; min-height: 150px; display: flex; flex-direction: column; z-index: 5; box-shadow: 0 -5px 20px var(--shadow); }
+        .table-responsive { overflow: auto; flex-grow: 1; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; }
+        .invoice-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
+        .invoice-table th { background: var(--bg-input); color: var(--accent); padding: 10px; text-align: left; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid var(--border); }
+        .invoice-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .group-row td { background: var(--glow); color: var(--accent); font-weight: bold; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--accent); }
+        .table-input-price, .table-input-qty, .table-input-text { background: transparent; border: 1px dashed var(--border); color: var(--text-main); padding: 4px; border-radius: 4px; font-family: inherit; font-size: 16px; outline: none; }
+        .table-input-price { width: 80px; text-align: right; }
+        .table-input-qty { width: 50px; text-align: center; }
+        .table-input-text { width: 100%; }
+        .table-input-price:focus, .table-input-qty:focus, .table-input-text:focus { border-color: var(--accent); background: var(--bg-input); }
+        .invoice-table .total-cell { text-align: right; font-weight: bold; color: var(--accent); }
+        .total-row { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; color: var(--accent); margin-top: 15px; padding-top: 10px; border-top: 2px dashed var(--border); }
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+        .modal { position: absolute; bottom: 30px; right: 30px; background: var(--bg-panel); border: 1px solid var(--accent); border-radius: 12px; padding: 25px; width: 320px; box-shadow: 0 10px 50px var(--shadow); animation: slideUp 0.3s ease; }
+        .modal h3 { color: var(--accent); margin-bottom: 15px; font-size: 16px; text-align: center; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-actions button { flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; font-size: 14px; }
+        #pdfModal .modal { width: 90%; max-width: 900px; height: 85vh; top: 50%; left: 50%; transform: translate(-50%, -50%); bottom: auto; right: auto; display: flex; flex-direction: column; }
+        .pdf-thumbnails { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; overflow-y: auto; flex-grow: 1; padding: 10px; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border); }
+        .pdf-page-card { display: flex; flex-direction: column; align-items: center; gap: 8px; background: var(--bg-panel); padding: 10px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; }
+        .pdf-page-card:hover { border-color: var(--accent); }
+        .pdf-page-card.selected { border-color: var(--accent); box-shadow: 0 0 10px var(--glow); background: var(--glow); }
+        .pdf-page-card img { width: 100%; height: auto; max-height: 180px; object-fit: contain; background: #fff; border-radius: 4px; }
+        .pdf-page-card label { display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; }
+        .save-indicator { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #fff; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity 0.3s; z-index: 200; pointer-events: none; box-shadow: 0 4px 15px var(--glow); }
+        .save-indicator.show { opacity: 1; animation: pulse-glow 2s infinite; }
+        .theme-switcher { margin-top: auto; padding: 15px 20px; border-top: 1px solid var(--border); background: var(--bg-dark); }
+        .theme-switcher label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .theme-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .t-btn { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .t-btn:hover { transform: scale(1.1); }
+        .t-btn.active { border-color: var(--text-main); box-shadow: 0 0 10px var(--text-main); }
+        .t-btn.b1 { background: #6ee7b7; } .t-btn.b2 { background: #fbbf24; } .t-btn.b3 { background: #86efac; }
+        .t-btn.b4 { background: #059669; } .t-btn.b5 { background: #eab308; } .t-btn.b6 { background: #4a7c59; border: 2px solid #fff; }
+        .mobile-menu-btn { display: none; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 8px; cursor: pointer; }
+        @media (max-width: 900px) {
+            #projectsView { padding: 20px; }
+            .projects-header h2 { font-size: 20px; }
+            .projects-grid { grid-template-columns: 1fr; }
+            #editorView { flex-direction: column; height: auto; overflow-y: hidden; }
+            .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 85% !important; max-width: 350px; z-index: 100; transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); box-shadow: 10px 0 50px rgba(0,0,0,0.8); }
+            .mobile-menu-btn { display: flex; }
+            .resizer-vertical, .resizer-horizontal { display: none; }
+            .workspace { height: 100vh; }
+            .canvas-container { min-height: 50vh; padding: 10px; }
+            .theme-brand .canvas-container { background-size: 90% auto, 20px 20px; }
+            .top-bar { padding: 10px; flex-direction: row; align-items: center; gap: 10px; }
+            .top-bar-actions { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+            .top-bar-actions::-webkit-scrollbar { display: none; }
+            .btn-action { padding: 10px; width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0; }
+            .btn-action span { display: none; }
+            .btn-action i { font-size: 18px; margin: 0; }
+            .btn-action.btn-primary { width: auto; padding: 0 16px; }
+            .btn-action.btn-primary span { display: block; }
+            .floating-tools-wrapper { top: 10px; left: 10px; }
+            .floating-tools { padding: 5px; gap: 5px; }
+            .floating-tools .tool-btn { width: 38px; height: 38px; font-size: 9px; }
+            .floating-tools .tool-btn i { font-size: 15px; }
+            .floating-louver-settings { width: 160px; padding: 6px; }
+            .zoom-controls { bottom: 10px; right: 10px; padding: 8px 12px; flex-direction: row; }
+            .zoom-text { display: none; }
+            .zoom-controls input[type="range"] { width: 80px; }
+            .invoice-panel { height: 40vh; padding: 10px; }
+            .modal { bottom: 10px; right: 10px; left: 10px; width: auto; }
+            #pdfModal .modal { width: 95%; height: 90vh; }
+            .theme-switcher { padding: 15px; justify-content: center; display: flex; flex-direction: column; align-items: center; }
+        }
+        @media print {
+            #projectsView, .sidebar, .top-bar, .zoom-controls, .save-indicator, .theme-switcher, .floating-tools-wrapper, .mobile-menu-btn { display: none !important; }
+            #editorView { display: block !important; height: auto; }
+            .workspace, .invoice-panel { display: block; height: auto; border: none; box-shadow: none; background: #fff; color: #000; }
+            .canvas-container { display: none; }
+            .table-responsive { overflow: visible; border: none; }
+            .invoice-table th, .invoice-table td { border: 1px solid #000; color: #000; }
+            .group-row td { background: #eee; color: #000; border-top: 2px solid #000; }
+            .total-row { color: #000; border-top: 2px solid #000; }
+            .table-input-price, .table-input-qty, .table-input-text { border: none; color: #000; pointer-events: none; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 20px; color: #000; }
+        }
+        .print-header { display: none; }
+        .catm{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;overflow:auto;padding:16px; backdrop-filter: blur(5px);}
+        .catb{max-width:1100px;margin:auto;background:var(--bg-panel);border:1px solid var(--accent);border-radius:12px;padding:20px; box-shadow: 0 10px 40px var(--shadow);}
+        .cath{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:15px}
+        .cath h3{color:var(--accent);margin-right:auto}
+        .cath input,.cath button,.cath textarea{background:var(--bg-input);color:var(--text-main);border:1px solid var(--border);border-radius:6px;padding:8px;min-height:36px; outline:none; font-size:16px;}
+        .cath button{cursor:pointer; font-weight:bold;}.cath button:hover{border-color:var(--accent); color:var(--accent);}
+        .cath button.on{background:var(--glow); border-color:var(--accent);color:var(--accent)}
+        .catg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px}
+        .cc{display:flex;gap:10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:10px; transition:0.2s;}
+        .cc:hover{border-color:var(--accent); box-shadow:0 4px 15px var(--shadow);}
+        .ct{width:64px;aspect-ratio:1220/3000;flex-shrink:0;align-self:flex-start;border-radius:6px;background:#2a2e37 center/cover no-repeat;box-shadow:inset 0 0 10px rgba(0,0,0,0.35);cursor:zoom-in;border:1px solid var(--border);}
+        .ct:hover{border-color:var(--accent);}
+        .ct.no{display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;color:var(--text-muted);cursor:default;padding:4px;aspect-ratio:auto;min-height:100px;}
+        .cath h3 small{color:var(--text-muted);font-size:12px;font-weight:400;margin-left:6px;}
+        .cath select{background:var(--bg-input);color:var(--text-main);border:1px solid var(--border);border-radius:6px;padding:8px;min-height:36px;outline:none;font-size:16px;}
+        .catg{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));align-items:start;}
+        .csl{background:var(--bg-input);color:var(--text-main);border:1px solid var(--border);border-radius:6px;padding:8px;min-height:36px;font-size:13px;max-width:100%;margin-top:6px;}
+        .cbs{margin:4px 0 2px;}
+        .cb{min-height:30px;line-height:18px;}
+        .cadd{display:inline-block;margin-top:6px;padding:6px 8px;border:1px dashed var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer;font-size:11px;}
+        .cadd:hover{border-color:var(--accent);color:var(--accent);}
+        .cact{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+        .cact button,.clbbtn button{background:var(--bg-input);color:var(--text-main);border:1px solid var(--border);border-radius:6px;padding:8px 10px;min-height:36px;font-size:13px;font-weight:600;cursor:pointer;}
+        .cact button:hover,.clbbtn button:hover{border-color:var(--accent);color:var(--accent);}
+        .cact button.pri,.clbbtn button.pri{background:var(--glow);border-color:var(--accent);color:var(--accent);}
+        .clb{display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,.85);padding:16px;overflow:auto;}
+        .clbb{max-width:560px;margin:auto;background:var(--bg-panel);border:1px solid var(--accent);border-radius:12px;padding:16px;display:flex;flex-wrap:wrap;gap:16px;box-shadow:0 10px 40px var(--shadow);}
+        .clbi{width:min(40vw,200px);aspect-ratio:1220/3000;flex-shrink:0;border-radius:8px;background:#2a2e37 center/cover no-repeat;border:1px solid var(--border);}
+        .clbt{flex:1;min-width:200px;font-size:13px;line-height:1.5;}
+        .clbt h4{color:var(--accent);font-size:18px;margin-bottom:2px;}
+        .clbt .sub{color:var(--text-muted);margin-bottom:10px;}
+        .clbt ul{list-style:none;margin:8px 0;}
+        .clbt li{padding:2px 0;}
+        .clbt li.y::before{content:'✔ ';color:var(--success);}
+        .clbt li.n::before{content:'✖ ';color:var(--danger);}
+        .clbt li.q::before{content:'? ';color:var(--text-muted);}
+        .clbt .pr{margin-top:8px;color:var(--text-muted);}
+        .clbt .pr b{color:var(--text-main);}
+        .clbbtn{display:flex;flex-wrap:wrap;gap:8px;width:100%;justify-content:flex-end;}
+        .ci{font-size:12px;flex:1}.ci small{color:var(--accent)}.ci label{display:block;color:var(--text-muted);margin-top:6px;font-size:11px}
+        .ci input{width:86px;background:var(--bg-input);color:var(--text-main);border:1px solid var(--border);border-radius:4px;padding:5px;margin-right:4px; outline:none; font-size:16px;}
+        .cb{display:inline-block;padding:5px 8px;margin:3px 3px 0 0;border-radius:5px;border:1px dashed var(--border);color:var(--text-muted);cursor:pointer;font-size:11px; transition:0.2s;}
+        .cb:hover{border-color:var(--accent); color:var(--text-main);}
+        .cb.on{background:var(--glow);border:1px solid var(--accent);color:var(--accent)}.cb.off{text-decoration:line-through;opacity:.6}
+        .help-content { color: var(--text-main); font-size: 13px; line-height: 1.6; max-height: 60vh; overflow-y: auto; padding-right: 10px; text-align: left; }
+        .help-content h4 { color: var(--accent); margin-top: 15px; margin-bottom: 5px; font-size: 14px; border-bottom: 1px solid var(--border); padding-bottom: 3px; }
+        .help-content p { margin-bottom: 8px; }
+        .help-content ul { margin-left: 20px; margin-bottom: 10px; }
+        .help-content li { margin-bottom: 4px; }
+        .help-content .contact-block { background: var(--bg-dark); padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; }
+        .help-content .contact-block b { color: var(--accent); }
+        .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+        .overlay-bg.open { display: block; }
+        @media screen { @supports (height: 100dvh) { body, #editorView, .sidebar, .workspace { height: 100dvh; } } }
+        .resizer-vertical, .resizer-horizontal { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="projectsView">
+        <div class="projects-header">
+            <h2><i class="fas fa-folder-open" style="margin-right:10px; color:var(--accent);"></i> Мои проекты</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn-action" onclick="exportAllProjects()" title="Сохранить все проекты в один файл"><i class="fas fa-box-archive" style="color:var(--success)"></i> <span>Резервная копия</span></button>
+                <button class="btn-action" onclick="document.getElementById('importJSONInputGlobal').click()" title="Загрузить проект или резервную копию"><i class="fas fa-upload"></i> <span>Импорт JSON</span></button>
+                <button class="btn-action btn-primary" onclick="createNewProject()"><i class="fas fa-plus"></i> <span>Новый проект</span></button>
+                <input type="file" id="importJSONInputGlobal" accept=".json" style="display:none" onchange="importJSON(event)">
+            </div>
+        </div>
+        <div class="projects-grid" id="projectsGrid"></div>
+    </div>
+
+    <div id="editorView">
+        <div class="overlay-bg" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <button class="back-btn" onclick="backToProjects()" title="К списку проектов"><i class="fas fa-arrow-left"></i></button>
+                <svg class="logo-svg" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                    <text x="10" y="25" font-family="sans-serif" font-size="8" fill="var(--text-muted)">Декоративные</text>
+                    <text x="10" y="48" font-family="sans-serif" font-size="32" font-weight="bold" fill="currentColor">FORONE.kz</text>
+                    <line x1="10" y1="33" x2="190" y2="33" stroke="currentColor" stroke-width="1"/>
+                    <text x="120" y="55" font-family="sans-serif" font-size="8" fill="var(--text-muted)">стеновые панели</text>
+                </svg>
+            </div>
+            <div class="panel-content">
+                <div>
+                    <div class="section-title">1. Параметры заказа</div>
+                    <div class="input-row">
+                        <div class="input-group"><label>Заказчик</label><input type="text" id="clientName" placeholder="Имя клиента"></div>
+                        <div class="input-group"><label>Адрес</label><input type="text" id="clientAddress" placeholder="Адрес"></div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group"><label>Высота стены (мм)</label><input type="number" id="wallH" value="2800" min="100"></div>
+                        <div class="input-group"><label>Ширина стены (мм)</label><input type="number" id="wallW" value="3000" min="100"></div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group"><label>№ накладной</label><input type="text" id="invoiceNum" value="4967"></div>
+                        <div class="input-group"><label>Дата</label><input type="date" id="invoiceDate"></div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Тип цен</label>
+                            <select id="priceMode" onchange="changePriceMode()">
+                                <option value="retail">Розничная</option>
+                                <option value="partner">Партнерская</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Панель (Артикул)</label>
+                            <select id="panelType" onchange="updatePricesFromCatalog()"></select>
+                        </div>
+                    </div>
+                    <div class="input-row" style="margin-top: 10px; flex-direction: column;">
+                        <div class="input-group">
+                            <label>Запас на раскрой: <span id="wasteLabel" style="color:var(--accent); font-weight:bold;">10%</span> <small style="color:var(--text-muted); font-weight:400;">(сверх упакованных, для боя/ошибок)</small></label>
+                            <input type="range" id="wasteSlider" min="0" max="30" value="10" step="1" oninput="updateWaste(this.value)" style="padding:0; height:20px; width: 100%;">
+                        </div>
+                        <button class="btn-action btn-primary" style="margin-top: 5px; width: 100%; padding: 12px; font-size: 14px;" onclick="calculate()">
+                            <i class="fas fa-calculator"></i> РАССЧИТАТЬ СМЕТУ
+                        </button>
+                    </div>
+                </div>
+                <div class="zones-container" style="margin-top: 10px;">
+                    <div class="section-title">2. Разметка (Зоны)</div>
+                    <div class="stats-bar" id="statsBar">
+                        <span>Зон: <b id="statZones">0</b></span>
+                        <span>Площадь: <b id="statArea">0</b> м²</span>
+                        <span>Панелей: <b id="statPanels">0</b></span>
+                    </div>
+                    <div class="zones-list" id="zonesList"></div>
+                </div>
+            </div>
+            <div class="theme-switcher">
+                <label>🎨 Выберите цветовую схему:</label>
+                <div class="theme-btns">
+                    <div class="t-btn b1 active" onclick="setTheme('', this)" title="Тёмная (Bamboo Night)"></div>
+                    <div class="t-btn b2" onclick="setTheme('theme-emerald', this)" title="Изумруд (Emerald)"></div>
+                    <div class="t-btn b3" onclick="setTheme('theme-matcha', this)" title="Матча (Matcha)"></div>
+                    <div class="t-btn b4" onclick="setTheme('theme-light', this)" title="Светлая (Light)"></div>
+                    <div class="t-btn b5" onclick="setTheme('theme-golden', this)" title="Золото (Golden)"></div>
+                    <div class="t-btn b6" onclick="setTheme('theme-brand', this)" title="Фирменная (FORONE)"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="top-bar">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="info-text">
+                    <i class="fas fa-info-circle"></i> Загрузите PDF — панели распознаются автоматически, неточности правьте вручную.
+                </div>
+                <div class="top-bar-actions">
+                    <button class="btn-action" onclick="catOpen()" title="Каталог панелей"><i class="fas fa-palette" style="color:var(--accent)"></i> <span>Каталог</span></button>
+                    <button class="btn-action btn-danger" onclick="clearZones()" title="Очистить только зоны"><i class="fas fa-broom"></i> <span>Зоны</span></button>
+                    <button class="btn-action btn-danger" onclick="clearState()" title="Полностью очистить проект"><i class="fas fa-trash-can"></i> <span>Сброс</span></button>
+                    <button class="btn-action" onclick="document.getElementById('helpModal').style.display = 'block'" title="Помощь"><i class="fas fa-circle-question" style="color:var(--accent)"></i> <span>Помощь</span></button>
+                    <button class="btn-action" id="btnUndo" onclick="undo()" title="Шаг назад (Ctrl+Z)" disabled><i class="fas fa-arrow-left"></i></button>
+                    <button class="btn-action" id="btnRedo" onclick="redo()" title="Шаг вперёд (Ctrl+Y)" disabled><i class="fas fa-arrow-right"></i></button>
+                    <button class="btn-action" id="btnAutoDetect" onclick="autoDetectPanels()" title="Распознать панели и размеры по PDF"><i class="fas fa-magic" style="color:var(--accent)"></i> <span>Распознать</span></button>
+                    <button class="btn-action" onclick="exportJSON()" title="Экспорт проекта (JSON)"><i class="fas fa-download" style="color:var(--success)"></i> <span>JSON</span></button>
+                    <button class="btn-action btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-file-import"></i> <span>Загрузить файл</span>
+                        <input type="file" id="fileInput" accept="application/pdf,.pdf" style="display:none" onchange="loadFile(event)">
+                    </button>
+                </div>
+            </div>
+            <div class="canvas-container" id="canvasContainer">
+                <div class="floating-tools-wrapper">
+                    <div class="floating-tools">
+                        <div class="tool-btn active" id="btnPanel" onclick="setTool('panel')" title="Панель"><i class="fas fa-square"></i><span>Панель</span></div>
+                        <div class="tool-btn" id="btnPoly" onclick="setTool('custom')" title="Лассо"><i class="fas fa-draw-polygon"></i><span>Лассо</span></div>
+                        <div class="tool-btn" id="btnLouver" onclick="setTool('louver')" title="Лувер"><i class="fas fa-bars"></i><span>Лувер</span></div>
+                        <div class="tool-btn" id="btnMove" onclick="setTool('move')" title="Сдвиг"><i class="fas fa-hand-paper"></i><span>Сдвиг</span></div>
+                    </div>
+                    <div class="floating-louver-settings" id="louverSettings">
+                        <label>Артикул лувера:</label>
+                        <select id="louverWidth" onchange="updatePricesFromCatalog()"></select>
+                    </div>
+                </div>
+                <div class="zoom-controls" id="zoomControls">
+                    <button class="zoom-btn" onclick="zoomOut()" title="Уменьшить">-</button>
+                    <input type="range" id="zoomSlider" min="10" max="1000" value="100" step="10" oninput="onZoomSliderChange(this.value)" title="Масштаб">
+                    <button class="zoom-btn" onclick="zoomIn()" title="Увеличить">+</button>
+                    <div class="zoom-text" id="zoomText">100%</div>
+                    <button class="zoom-btn" onclick="resetView()" title="Вписать в экран" style="font-size:12px"><i class="fas fa-expand"></i></button>
+                </div>
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-leaf" style="font-size: 50px; color: var(--accent); margin-bottom: 15px;"></i>
+                    <h2 style="color:var(--text-main); font-size:18px;">Загрузите PDF-развёртку стены</h2>
+                    <p style="font-size:12px; margin-top:5px;">Поддерживается формат PDF</p>
+                </div>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+            <div class="invoice-panel" id="invoicePanel">
+                <div class="print-header">
+                    <h2>Товарищество с ограниченной ответственностью "ForOne.kz"</h2>
+                    <p>г. Алматы, ул. Иннопромная, 2</p>
+                    <h3 style="margin-top: 15px; text-decoration: underline;">НАКЛАДНАЯ № <span id="printOrderNum">4967</span> от <span id="printOrderDate">—</span></h3>
+                    <p style="text-align: left; margin-top: 10px;">Заказчик: <b id="printClient"></b><br>Адрес: <b id="printAddress"></b></p>
+                </div>
+                <div class="table-responsive">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;">№</th>
+                                <th>Наименование</th>
+                                <th style="width: 70px;">К-во</th>
+                                <th style="width: 40px;">Ед.</th>
+                                <th style="width: 100px;">Цена</th>
+                                <th style="width: 110px; text-align: right;">Сумма</th>
+                                <th style="width: 40px; text-align: center;"><i class="fas fa-cog"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceBody"></tbody>
+                    </table>
+                </div>
+                <div class="total-row">
+                    <span>ИТОГО:</span>
+                    <span id="grandTotalText">0 тг.</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn-action" onclick="addManualRow()"><i class="fas fa-plus"></i> <span>Позиция</span></button>
+                        <button class="btn-action" onclick="exportCSV()" style="border-color:var(--success); color:var(--success)"><i class="fas fa-file-csv"></i> <span>CSV</span></button>
+                    </div>
+                    <button class="btn-action btn-primary" onclick="window.print()"><i class="fas fa-print"></i> <span>Печать</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="save-indicator" id="saveIndicator">✓ Сохранено</div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3><i class="fas fa-ruler-combined"></i> Ширина детали (мм)</h3>
+            <div class="input-group">
+                <input type="number" id="inputRealWidth" placeholder="1210" inputmode="numeric">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-action" onclick="cancelZone()">Отмена</button>
+                <button class="btn-action btn-primary" onclick="saveZone()">Применить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="pdfModal">
+        <div class="modal">
+            <h3 style="margin-bottom: 10px;"><i class="fas fa-file-pdf"></i> Выберите страницы PDF</h3>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <label style="cursor:pointer; font-size:13px; display:flex; align-items:center; gap:5px;">
+                    <input type="checkbox" id="pdfSelectAll" onchange="toggleAllPdfPages(this.checked)"> Выбрать все
+                </label>
+                <span style="font-size:12px; color:var(--text-muted)" id="pdfStatusText">Загрузка...</span>
+            </div>
+            <div class="pdf-thumbnails" id="pdfThumbnails"></div>
+            <div class="modal-actions">
+                <button class="btn-action" onclick="document.getElementById('pdfModal').style.display='none'">Отмена</button>
+                <button class="btn-action btn-primary" id="btnLoadPdfPages" onclick="loadSelectedPdfPages()" disabled>Загрузить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal" style="top:50%; left:50%; transform:translate(-50%,-50%); bottom:auto; right:auto; width:90%; max-width:650px; max-height:85vh; overflow-y:auto;">
+            <h3 style="text-align:left; font-size:18px; margin-bottom:15px;"><i class="fas fa-book-open"></i> Руководство пользователя FORONE</h3>
+            <div class="help-content">
+                <p>Калькулятор бамбуковых панелей <b>FORONE</b>. Подсчёт ведётся по размерам: <code>ширина ÷ ширина панели</code>, <code>высота ÷ 3000</code>; остатки от раскроя автоматически переиспользуются в пределах одного артикула.</p>
+                <h4>Подсчёт панелей</h4>
+                <ul>
+                    <li><b>Панель</b> — 1220×3000 мм.</li>
+                    <li><b>Лувер</b> — рейка шириной по артикулу (90, 140, 160, 220 мм), длиной 3000 мм. Минимум — 90 мм.</li>
+                    <li>Остатки от одной панели (например, 1220−560=660 мм) идут на другой участок с такой же шириной. Остатки разных артикулов не смешиваются.</li>
+                </ul>
+                <h4>Инструменты</h4>
+                <ul>
+                    <li><b>Панель</b> — прямоугольник.</li>
+                    <li><b>Лассо</b> — сложный контур (двойной клик — завершить).</li>
+                    <li><b>Лувер</b> — рейки; тип зоны переключается кликом по бейджу.</li>
+                    <li><b>Сдвиг</b> — панорама/перемещение зоны.</li>
+                </ul>
+                <div class="contact-block">
+                    <h4 style="margin-top:0; border:none;">📞 Контакты</h4>
+                    <p><b>Алматы:</b> +7 708 911 4298 · +7 700 858 0789 (WhatsApp)<br>
+                    <b>Астана:</b> +7 701 006 5468 · +7 700 929 0789 (WhatsApp)<br>
+                    <b>Email:</b> forone.kz@yandex.kz<br>
+                    <b>Сайт:</b> www.forone.kz</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-action btn-primary" onclick="document.getElementById('helpModal').style.display = 'none'">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="catm" id="catM"><div class="catb">
+    <div class="cath"><h3>Каталог панелей <small id="catN"></small></h3><input id="catQ" placeholder="Поиск" oninput="catF.q=this.value;catRender()"><select id="catS" onchange="catF.s=this.value;catRender()"><option value="">Все серии</option></select>
+    <button id="fL" onclick="catFt('L')">Лувер</button><button id="fD" onclick="catFt('D')">Дверь</button><button id="fP" onclick="catFt('P')">Профиль</button>
+    <button onclick="catClose()">Закрыть ✕</button></div>
+    <div class="cath"><input id="nA" placeholder="Новый артикул"><input id="nS" placeholder="Серия"><button onclick="catAdd()">+ Добавить</button>
+    <button onclick="catExport()">Экспорт</button><button onclick="catImport()">Импорт</button></div>
+    <div class="cath"><textarea id="catIO" rows="2" style="width:100%" placeholder="Экспорт/импорт каталога"></textarea></div>
+    <div class="catg" id="catG"></div>
+    <p style="color:var(--text-muted);font-size:11px;margin-top:10px">Отметки: есть → нет → не знаю. Цены: розница / партнёр.</p></div></div>
+    <div class="clb" id="catLb"><div class="clbb"><div class="clbi" id="clbI"></div><div class="clbt" id="clbT"></div><div class="clbbtn"><button id="clbP" class="pri">В расчёт</button><button id="clbX">Закрыть</button></div></div></div>
+
+<script>
+    /* ============ ТЕМА ============ */
+    function setTheme(themeClass, btn) {
+        document.body.className = themeClass;
+        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        localStorage.setItem('forone_theme', themeClass);
+        if (typeof redrawCanvas === 'function') redrawCanvas();
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('forone_theme');
+        if (savedTheme !== null) {
+            document.body.className = savedTheme;
+            const btns = document.querySelectorAll('.t-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            if (savedTheme === '') btns[0].classList.add('active');
+            if (savedTheme === 'theme-emerald') btns[1].classList.add('active');
+            if (savedTheme === 'theme-matcha') btns[2].classList.add('active');
+            if (savedTheme === 'theme-light') btns[3].classList.add('active');
+            if (savedTheme === 'theme-golden') btns[4].classList.add('active');
+            if (savedTheme === 'theme-brand') btns[5].classList.add('active');
+        }
+    });
+
+    /* ============ КАТАЛОГ ============ */
+    const catalog = {
+        "panels": {
+            "H006-H": {"name": "БП Серия Дерево H006-H","retail": 50000,"partner": 35000},
+            "H198-Y": {"name": "БП Серия Дерево H198-Y","retail": 55000,"partner": 38500},
+            "H003-H": {"name": "БП Серия Дерево H003-H","retail": 50000,"partner": 35000},
+            "K01-194N": {"name": "БП Серия Дерево K01-194N","retail": 50000,"partner": 35000},
+            "K01-204N": {"name": "БП Серия Дерево K01-204N","retail": 50000,"partner": 35000},
+            "K01-203N": {"name": "БП Серия Дерево K01-203N","retail": 50000,"partner": 35000},
+            "K01-174X": {"name": "БП Серия Мрамор K01-174X","retail": 50000,"partner": 35000},
+            "K01-176X": {"name": "БП Серия Мрамор K01-176X","retail": 50000,"partner": 35000},
+            "M/P-089R": {"name": "БП Серия Мрамор M/P-089R","retail": 65000,"partner": 45500},
+            "H127-PP2": {"name": "БП Однотонная матовая H127-PP2","retail": 65000,"partner": 45500},
+            "H234-YP": {"name": "БП Однотонная глянец H234-YP","retail": 55000,"partner": 38500},
+            "H072-YP": {"name": "БП Однотонная матовая H072-YP","retail": 55000,"partner": 38500},
+            "H205-YP": {"name": "БП Однотонная матовая H205-YP","retail": 55000,"partner": 38500},
+            "K01-187N": {"name": "БП Однотонная матовая K01-187N","retail": 50000,"partner": 35000},
+            "K01-17N": {"name": "БП Однотонная матовая K01-17N","retail": 50000,"partner": 35000},
+            "K01-135X": {"name": "БП Серия Ткань K01-135X","retail": 50000,"partner": 35000},
+            "K01-136X": {"name": "БП Серия Ткань K01-136X","retail": 50000,"partner": 35000},
+            "H098-F": {"name": "БП Серия Ткань H098-F","retail": 55000,"partner": 38500},
+            "H093-F": {"name": "БП Серия Ткань H093-F","retail": 55000,"partner": 38500},
+            "K01-38M": {"name": "БП Серия Ткань K01-38M","retail": 55000,"partner": 38500},
+            "K01-53N": {"name": "БП Серия Ткань K01-53N","retail": 50000,"partner": 35000},
+            "H149-PP1": {"name": "БП Серия Ткань H149-PP1","retail": 55000,"partner": 38500},
+            "K01-03-22X": {"name": "БП Серия Ткань K01-03-22X","retail": 50000,"partner": 35000},
+            "H241-YP": {"name": "БП Серия Кожа H241-YP","retail": 55000,"partner": 38500},
+            "K01-54H": {"name": "БП Серия Кожа K01-54H","retail": 50000,"partner": 35000},
+            "M/P-001U": {"name": "БП Мозайка M/P-001U","retail": 55000,"partner": 38500},
+            "K01-18N": {"name": "БП Оливка K01-18N","retail": 50000,"partner": 35000},
+            "M/P-065C": {"name": "БП Марсала M/P-065C","retail": 65000,"partner": 45500},
+            "M/P-093R": {"name": "БП Серия Дерево M/P-093R","retail": 65000,"partner": 45500},
+            "M/P-092R": {"name": "БП Серия Дерево M/P-092R","retail": 65000,"partner": 45500},
+            "254M": {"name": "БП Серия Ткань 254M","retail": 55000,"partner": 38500},
+            "M/Q-96V": {"name": "БП Металл бронза M/Q-96V","retail": 65000,"partner": 45500},
+            "M/Q-95V": {"name": "БП Металл серебро M/Q-95V","retail": 65000,"partner": 45500},
+            "M/P-100Q": {"name": "БП Серия Ткань M/P-100Q","retail": 55000,"partner": 38500},
+            "M/H-271Y": {"name": "БП Серия Ткань M/H-271Y","retail": 55000,"partner": 38500},
+            "M/H-270Y": {"name": "БП Серия Ткань M/H-270Y","retail": 55000,"partner": 38500},
+            "K01-110X": {"name": "БП Серия Дерево K01-110X","retail": 50000,"partner": 35000},
+            "K01-171X": {"name": "БП Серия Дерево K01-171X","retail": 50000,"partner": 35000},
+            "H236-YP": {"name": "БП Однотонная матовая H236-YP","retail": 55000,"partner": 38500},
+            "M/H-215Y": {"name": "БП Серия Мрамор M/H-215Y","retail": 55000,"partner": 38500},
+            "M/K01-HM005R": {"name": "БП Серия Ткань M/K01-HM005R","retail": 65000,"partner": 45500},
+            "K01-62H": {"name": "БП Серия Ткань K01-62H","retail": 50000,"partner": 35000},
+            "K01-63H": {"name": "БП Серия Ткань K01-63H","retail": 50000,"partner": 35000},
+            "K01-120X": {"name": "БП Серия Ткань K01-120X","retail": 50000,"partner": 35000},
+            "K01-127X": {"name": "БП Серия Ткань K01-127X","retail": 50000,"partner": 35000},
+            "K01-124X": {"name": "БП Серия Ткань K01-124X","retail": 50000,"partner": 35000},
+            "K01-133X": {"name": "БП Серия Ткань K01-133X","retail": 50000,"partner": 35000},
+            "QK098X": {"name": "БП Серия Мрамор QK098X","retail": 50000,"partner": 35000},
+            "QK099X": {"name": "БП Серия Мрамор QK099X","retail": 55000,"partner": 38500},
+            "K01-277A": {"name": "БП Серия Ткань K01-277A","retail": 55000,"partner": 38500},
+            "K01-140X": {"name": "БП Серия Мрамор K01-140X","retail": 50000,"partner": 35000},
+            "K01-206N": {"name": "БП Серия Дерево K01-206N","retail": 50000,"partner": 35000},
+            "K01-212H": {"name": "БП Серия Камень K01-212H","retail": 50000,"partner": 35000},
+            "K01-247N": {"name": "БП Серия Дерево K01-247N","retail": 55000,"partner": 38500},
+            "M/K02-043T": {"name": "БП Серия Оливка 5ММ 3m M/K02-043T","retail": 55000,"partner": 38500},
+            "M/P-028K": {"name": "БП Серия Металл M/P-028K","retail": 65000,"partner": 45500},
+            "M/Q-105A": {"name": "БП Серия Зеркало M/Q-105A","retail": 65000,"partner": 45500}
+        },
+        "louvers": {
+            "K01-17N": {"name": "Лувер 140BLB (K01-17N)","retail": 9000,"partner": 6300},
+            "K01-17N#160GS": {"name": "Лувер 160GS (K01-17N)","retail": 10000,"partner": 7000},
+            "K01-38M": {"name": "Лувер 150XCC (K01-38M)","retail": 10000,"partner": 7000},
+            "H006-H": {"name": "Лувер 160GS (H006-H)","retail": 10000,"partner": 7000},
+            "H006-H#150SXWGS": {"name": "Лувер 150SXWGS (H006-H)","retail": 10000,"partner": 7000},
+            "H198-Y": {"name": "Лувер 150XCC (H198-Y)","retail": 10000,"partner": 7000},
+            "K01-204N": {"name": "Лувер 150XCC (K01-204N)","retail": 8000,"partner": 5600},
+            "K01-53N": {"name": "Лувер 90WYCC (K01-53N)","retail": 8000,"partner": 5600},
+            "K01-03-22X": {"name": "Лувер 150XCC (K01-03-22X)","retail": 10000,"partner": 7000},
+            "H003-H": {"name": "Лувер 150SXWGS (H003-H)","retail": 10000,"partner": 7000},
+            "H003-H#160GS": {"name": "Лувер 160GS (H003-H)","retail": 10000,"partner": 7000},
+            "K01-203N": {"name": "Лувер 150SXWGS (K01-203N)","retail": 10000,"partner": 7000},
+            "K01-194N": {"name": "Лувер 139XGS (K01-194N)","retail": 10000,"partner": 7000},
+            "K01-194N#150XCC": {"name": "Лувер 150XCC (K01-194N)","retail": 10000,"partner": 7000},
+            "K01-110X": {"name": "Лувер 139XGS (K01-110X)","retail": 9000,"partner": 6300},
+            "K01-171X": {"name": "Лувер 139XGS (K01-171X)","retail": 9000,"partner": 6300},
+            "H093-F": {"name": "Лувер 206SXB (H093-F)","retail": 13000,"partner": 9100},
+            "H098-F": {"name": "Лувер 206SXB (H098-F)","retail": 13000,"partner": 9100},
+            "H205-YP": {"name": "Лувер 226YHB (H205-YP)","retail": 15000,"partner": 10500},
+            "H234-YP": {"name": "Лувер 226YHB (H234-YP)","retail": 15000,"partner": 10500},
+            "K01-187N": {"name": "Лувер 140BLB (K01-187N)","retail": 10000,"partner": 7000},
+            "K01-18N": {"name": "Лувер 140BLB (K01-18N)","retail": 10000,"partner": 7000},
+            "K01-54H": {"name": "Лувер 140BLB (K01-54H)","retail": 8000,"partner": 5600},
+            "H241-YP": {"name": "Лувер 90WYCC (H241-YP)","retail": 10000,"partner": 7000},
+            "254M": {"name": "Лувер 206SXB (254M)","retail": 15000,"partner": 10500},
+            "K01-136X": {"name": "Лувер 140BLB (K01-136X)","retail": 9000,"partner": 6300},
+            "K01-135X": {"name": "Лувер 128CHBSIZE (K01-135X)","retail": 8000,"partner": 5600},
+            "M/H-271Y": {"name": "Лувер 160SXZHGS (M/H-271Y)","retail": 12000,"partner": 8400},
+            "M/H-270Y": {"name": "Лувер 139XGS (M/H-270Y)","retail": 12000,"partner": 8400},
+            "H236-YP": {"name": "Лувер 128CHB (H236-YP)","retail": 15000,"partner": 10500},
+            "K01-62H": {"name": "Лувер 180ZSB (K01-62H)","retail": 12000,"partner": 8400},
+            "K01-63H": {"name": "Лувер 196ZHCCB (K01-63H)","retail": 12000,"partner": 8400},
+            "K01-206N": {"name": "Лувер 150XCC (K01-206N)","retail": 10000,"partner": 7000},
+            "K01-127X": {"name": "Лувер 150XCC (K01-127X)","retail": 10000,"partner": 7000},
+            "K01-124X": {"name": "Лувер 150XCC (K01-124X)","retail": 10000,"partner": 7000},
+            "K01-133X": {"name": "Лувер 150XCC (K01-133X)","retail": 10000,"partner": 7000},
+            "K01-212H": {"name": "Лувер 90WYCC (K01-212H)","retail": 10000,"partner": 7000},
+            "K01-120X": {"name": "Лувер 90WYCC (K01-120X)","retail": 10000,"partner": 7000},
+            "K01-247N": {"name": "Лувер 120BYB (K01-247N)","retail": 13000,"partner": 9100}
+        },
+        "profiles": {
+            "connect": {"name": "Профиль соединительный","retail": 3500,"partner": 2450},
+            "finish": {"name": "Профиль завершающий","retail": 3000,"partner": 2100},
+            "inner": {"name": "Профиль внутренний угловой","retail": 5000,"partner": 3500},
+            "outer": {"name": "Профиль наружный угловой","retail": 5000,"partner": 3500},
+            "gangle": {"name": "Г-образный угол (10*10, 15*15, 20*20)","retail": 5000,"partner": 3500},
+            "glue": {"name": "Клей","retail": 1500,"partner": 1300}
+        }
+    };
+
+    /* ============ КОНСТАНТЫ ============ */
+    const PANEL_STD_W = 1220;     // ширина стандартной панели, мм
+    const PANEL_STD_L = 3000;     // длина панели/лувера, мм
+    const LOUVER_MIN_W = 90;      // минимальная ширина лувера, мм
+    const HANDLE_SIZE = 10;
+    const DB_NAME = 'forone_pro_db';
+    const DB_STORE = 'images';
+
+    /* ============ ГЛОБАЛЬНОЕ СОСТОЯНИЕ ============ */
+    let canvas, ctx;
+    let img = new Image();
+    let zones = [];
+    let currentTool = 'panel';
+    let currentProjectId = null;
+    let undoStack = [], redoStack = [];
+    let isDrawingRect = false;
+    let startX = 0, startY = 0, currentX = 0, currentY = 0;
+    let isDrawingPoly = false;
+    let polyPoints = [];
+    let isResizing = false;
+    let resizeHandle = null, resizingZone = null;
+    let historyPushedThisAction = false;
+    let isMovingZone = false, movingZone = null;
+    let moveStartX = 0, moveStartY = 0;
+    let initialZoneX = 0, initialZoneY = 0, initialPolyPoints = [];
+    let pendingZone = null, editingZoneId = null, hoveredZoneId = null;
+    let currentWastePercent = 10;
+    let currentZoom = 1.0;
+    const MIN_ZOOM = 0.1, MAX_ZOOM = 10.0;
+    let panX = 0, panY = 0;
+    let isPanning = false, startPanX = 0, startPanY = 0, initialPanX = 0, initialPanY = 0;
+    let activePointers = new Map();
+    let isPinching = false;
+    let initialPinchDistance = 0, initialPinchZoom = 1.0;
+    let manualItems = [];
+    let rowCounter = 0;
+    let saveTimeout = null, saveIndicatorTimeout = null, lastSaveIndicatorShow = 0, wasteDebounce = null;
+    let lastWallH = 2800;
+    let db = null;
+    let currentPdfDoc = null;
+    let pdfTexts = [];
+    let pendingTexts = [];
+
+    let currentPrices = {
+        panel: 50000, louver: 9000, connectProfile: 3500, finishProfile: 3000,
+        glue: 1500, labor: 5000, delivery: 10000
+    };
+
+    /* ============ УТИЛИТЫ ============ */
+    function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function toNum(v, def = 0) { const n = parseFloat(v); return Number.isFinite(n) ? n : def; }
+    function todayLocal() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    /* ============ ШИРИНА ПАНЕЛИ / ЛУВЕРА ============ */
+    // Панель всегда 1220. Лувер — из артикула (например "Лувер 140BLB" → 140), но не меньше 90.
+    function getPanelWidth() { return PANEL_STD_W; }
+    function getLouverWidth(art) {
+        const sel = art || document.getElementById('louverWidth').value;
+        const item = catalog.louvers[sel];
+        const m = item && /Лувер\s+(\d{2,3})/.exec(item.name);
+        return m ? Math.max(LOUVER_MIN_W, parseInt(m[1], 10)) : LOUVER_MIN_W;
+    }
+
+    /* ============ УПАКОВКА ПАНЕЛЕЙ (bin packing с переиспользованием остатков) ============ */
+    // Вход: список прямоугольных деталей {w, h} (мм), размеры панели panelW × panelH (мм).
+    // Выход: минимальное число панелей с учётом того, что остаток от одной панели идёт на другую
+    // (в пределах ОДНОГО артикула — обеспечивается тем, что упаковываем по группам отдельно).
+    // Алгоритм: guillotine best-fit, детали сортируются по убыванию высоты, затем ширины.
+    function packPanels(pieces, panelW, panelH) {
+        if (!pieces.length) return 0;
+        // Сортировка: по высоте desc, потом по ширине desc
+        const sorted = pieces.slice().sort((a, b) => b.h - a.h || b.w - a.w);
+        // Каждая "панель" — набор свободных прямоугольников (для guillotine-резки)
+        const panels = [];
+
+        function tryPlaceInPanel(panel, p) {
+            let bestIdx = -1, bestArea = Infinity;
+            for (let i = 0; i < panel.freeRects.length; i++) {
+                const r = panel.freeRects[i];
+                if (r.w + 0.001 >= p.w && r.h + 0.001 >= p.h) {
+                    const area = r.w * r.h;
+                    if (area < bestArea) { bestArea = area; bestIdx = i; }
+                }
+            }
+            if (bestIdx === -1) return false;
+            const r = panel.freeRects[bestIdx];
+            panel.freeRects.splice(bestIdx, 1);
+            // Отрезаем справа
+            if (r.w - p.w > 0.001) {
+                panel.freeRects.push({ x: r.x + p.w, y: r.y, w: r.w - p.w, h: p.h });
+            }
+            // Отрезаем снизу
+            if (r.h - p.h > 0.001) {
+                panel.freeRects.push({ x: r.x, y: r.y + p.h, w: r.w, h: r.h - p.h });
+            }
+            return true;
+        }
+
+        for (const p of sorted) {
+            let placed = false;
+            // Ищем лучший (минимальный по площади) свободный прямоугольник среди всех панелей
+            for (const panel of panels) {
+                if (tryPlaceInPanel(panel, p)) { placed = true; break; }
+            }
+            if (!placed) {
+                const newPanel = { freeRects: [{ x: 0, y: 0, w: panelW, h: panelH }] };
+                tryPlaceInPanel(newPanel, p);
+                panels.push(newPanel);
+            }
+        }
+        return panels.length;
+    }
+
+    // Разбиение одной зоны на детали {w, h} (мм)
+    // Панель: ширина 1220, длина 3000. Лувер: ширина по артикулу, длина 3000.
+    // Колонки: ceil(realW / panelW). Ряды: ceil(realH / panelL). Остатки "пустые" не создаём — их съест упаковщик.
+    function zoneToCutPieces(zone, panelW) {
+        const rw = parseFloat(zone.realWidth) || 0;
+        const rh = parseFloat(zone.realHeight) || 0;
+        const qty = Math.max(1, Math.round(zone.qty || 1));
+        if (rw <= 0 || rh <= 0) return [];
+        const cols = Math.ceil(rw / panelW - 0.0001);
+        const rows = Math.ceil(rh / PANEL_STD_L - 0.0001);
+        const colW = rw / cols;
+        const pieces = [];
+        for (let q = 0; q < qty; q++) {
+            for (let r = 0; r < rows; r++) {
+                const h = Math.min(PANEL_STD_L, rh - r * PANEL_STD_L);
+                for (let c = 0; c < cols; c++) {
+                    const w = Math.min(panelW, rw - c * panelW);
+                    pieces.push({ w: w, h: h });
+                }
+            }
+        }
+        return pieces;
+    }
+
+    /* ============ DB ============ */
+    function initDB() {
+        return new Promise((resolve, reject) => {
+            if (db) return resolve(db);
+            try {
+                const req = indexedDB.open(DB_NAME, 1);
+                req.onupgradeneeded = (e) => {
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains(DB_STORE)) d.createObjectStore(DB_STORE);
+                };
+                req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+                req.onerror = (e) => reject(e.target.error);
+            } catch (err) { reject(err); }
+        });
+    }
+    async function saveImageToDB(dataUrl, key) {
+        try {
+            if (!db) await initDB();
+            return await new Promise((res, rej) => {
+                const tx = db.transaction(DB_STORE, 'readwrite');
+                tx.objectStore(DB_STORE).put(dataUrl, key);
+                tx.oncomplete = () => res();
+                tx.onerror = (e) => rej(e.target.error);
+                tx.onabort = () => rej(tx.error);
+            });
+        } catch (e) { console.warn('saveImageToDB:', e); }
+    }
+    async function loadImageFromDB(key) {
+        try {
+            if (!db) await initDB();
+            return await new Promise((res, rej) => {
+                const tx = db.transaction(DB_STORE, 'readonly');
+                const req = tx.objectStore(DB_STORE).get(key);
+                req.onsuccess = () => res(req.result || null);
+                req.onerror = (e) => rej(e.target.error);
+            });
+        } catch (e) { console.warn('loadImageFromDB:', e); return null; }
+    }
+    async function deleteImageFromDB(key) {
+        try {
+            if (!db) await initDB();
+            return await new Promise((res, rej) => {
+                const tx = db.transaction(DB_STORE, 'readwrite');
+                tx.objectStore(DB_STORE).delete(key);
+                tx.oncomplete = () => res();
+                tx.onerror = (e) => rej(e.target.error);
+                tx.onabort = () => rej(tx.error);
+            });
+        } catch (e) { console.warn('deleteImageFromDB:', e); }
+    }
+
+    /* ============ SANITIZE ============ */
+    function sanitizeZone(z, i) {
+        if (!z || typeof z !== 'object') return null;
+        const pts = Array.isArray(z.points) ? z.points.map(p => ({ x: toNum(p && p.x), y: toNum(p && p.y) })) : null;
+        const isPoly = !!z.isPoly && !!pts && pts.length >= 3;
+        const zone = {
+            id: /^[\w-]+$/.test(String(z.id)) ? String(z.id) : 'z' + Date.now() + '_' + i,
+            type: ['panel', 'louver', 'custom'].includes(z.type) ? z.type : 'panel',
+            x: toNum(z.x), y: toNum(z.y), w: toNum(z.w), h: toNum(z.h),
+            realWidth: z.realWidth === '' ? '' : toNum(z.realWidth),
+            realHeight: toNum(z.realHeight),
+            qty: Math.max(1, Math.round(toNum(z.qty, 1))),
+            isPoly: isPoly
+        };
+        if (isPoly) zone.points = pts;
+        // Артикулы (новое): сохраняем, если валидные
+        if (typeof z.panelArt === 'string' && /^[\w\-\/#]+$/.test(z.panelArt)) zone.panelArt = z.panelArt;
+        if (typeof z.louverArt === 'string' && /^[\w\-\/#]+$/.test(z.louverArt)) zone.louverArt = z.louverArt;
+        return zone;
+    }
+    function sanitizeManualItems(arr) {
+        const used = new Set();
+        return (Array.isArray(arr) ? arr : []).filter(it => it && typeof it === 'object').map(it => {
+            let id = /^m_\d+$/.test(String(it.id)) && !used.has(it.id) ? it.id : null;
+            if (!id) { do { rowCounter++; id = 'm_' + rowCounter; } while (used.has(id)); }
+            used.add(id);
+            return { id: id, name: String(it.name == null ? '' : it.name), unit: String(it.unit == null ? '' : it.unit), qty: Math.max(0, toNum(it.qty)), price: Math.max(0, toNum(it.price)) };
+        });
+    }
+    function sanitizePrices(p) {
+        const out = {};
+        if (p && typeof p === 'object') Object.keys(currentPrices).forEach(k => { if (Number.isFinite(parseFloat(p[k]))) out[k] = Math.max(0, parseFloat(p[k])); });
+        return out;
+    }
+    function sanitizeTexts(a) {
+        return (Array.isArray(a) ? a : []).filter(t => t && typeof t.s === 'string' && Number.isFinite(t.x) && Number.isFinite(t.y))
+            .slice(0, 3000).map(t => ({ s: t.s.slice(0, 80), x: t.x, y: t.y, w: toNum(t.w), h: toNum(t.h), ocr: t.ocr ? 1 : 0 }));
+    }
+    function resetProjectDefaults() {
+        const el = id => document.getElementById(id);
+        el('clientName').value = ''; el('clientAddress').value = '';
+        el('wallH').value = 2800; el('wallW').value = 3000;
+        el('invoiceNum').value = '4967'; el('invoiceDate').value = todayLocal();
+        el('priceMode').value = 'retail';
+        el('panelType').value = 'K01-127X'; el('louverWidth').value = 'K01-17N';
+        el('wasteSlider').value = 10; el('wasteLabel').innerText = '10%';
+        currentWastePercent = 10; lastWallH = 2800;
+        currentPrices = { panel: 50000, louver: 9000, connectProfile: 3500, finishProfile: 3000, glue: 1500, labor: 5000, delivery: 10000 };
+    }
+    function showSaveError() {
+        const ind = document.getElementById('saveIndicator'); if (!ind) return;
+        ind.textContent = '⚠ Не сохранено: нет места';
+        ind.style.background = 'var(--danger)';
+        ind.classList.add('show');
+        clearTimeout(saveIndicatorTimeout);
+        saveIndicatorTimeout = setTimeout(() => ind.classList.remove('show'), 5000);
+    }
+    function downloadTextFile(text, filename, type) {
+        const url = URL.createObjectURL(new Blob([text], { type: type }));
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    /* ============ ПРОЕКТЫ ============ */
+    async function exportAllProjects() {
+        try {
+            saveState();
+            const list = JSON.parse(localStorage.getItem('forone_projects_list') || '[]');
+            const projects = [];
+            for (const p of list) {
+                let st = null;
+                try { st = JSON.parse(localStorage.getItem('forone_proj_' + p.id) || 'null'); } catch (_) {}
+                if (!st) continue;
+                st._total = p.total || '0';
+                const image = await loadImageFromDB('image_' + p.id);
+                if (image) st.imageDataUrl = image;
+                projects.push(st);
+            }
+            if (!projects.length) { alert('Нет проектов для резервной копии.'); return; }
+            downloadTextFile(JSON.stringify({ forone_backup: 1, created: new Date().toISOString(), projects: projects }),
+                'FORONE_резервная_копия_' + todayLocal() + '.json', 'application/json');
+        } catch (err) { console.error(err); alert('Не удалось создать резервную копию: ' + err.message); }
+    }
+    function createNewProject() {
+        let id = 'proj_' + Date.now();
+        let projects = JSON.parse(localStorage.getItem('forone_projects_list') || '[]');
+        projects.push({ id: id, name: 'Новый проект', address: '', total: '0' });
+        localStorage.setItem('forone_projects_list', JSON.stringify(projects));
+        openProject(id);
+    }
+    async function openProject(id) {
+        currentProjectId = id;
+        document.getElementById('projectsView').style.display = 'none';
+        document.getElementById('editorView').style.display = 'flex';
+        zones = []; manualItems = []; rowCounter = 0;
+        undoStack = []; redoStack = [];
+        updateUndoRedoButtons();
+        hoveredZoneId = null;
+        pdfTexts = [];
+        resetProjectDefaults();
+        const raw = localStorage.getItem('forone_proj_' + id);
+        let s = null;
+        try { s = raw ? JSON.parse(raw) : null; } catch (err) { console.warn('openProject: повреждённые данные', err); }
+        if (s && typeof s === 'object') {
+            if (s.clientName !== undefined) document.getElementById('clientName').value = s.clientName;
+            if (s.clientAddress !== undefined) document.getElementById('clientAddress').value = s.clientAddress;
+            if (s.wallH !== undefined) document.getElementById('wallH').value = s.wallH;
+            if (s.wallW !== undefined) document.getElementById('wallW').value = s.wallW;
+            if (s.priceMode) document.getElementById('priceMode').value = s.priceMode;
+            if (s.panelType) document.getElementById('panelType').value = s.panelType;
+            if (s.louverWidth) document.getElementById('louverWidth').value = s.louverWidth;
+            if (s.invoiceNum) document.getElementById('invoiceNum').value = s.invoiceNum;
+            if (s.invoiceDate) document.getElementById('invoiceDate').value = s.invoiceDate;
+            if (s.waste !== undefined) {
+                const w = Math.min(30, Math.max(0, parseInt(s.waste) || 0));
+                currentWastePercent = w;
+                document.getElementById('wasteSlider').value = w;
+                document.getElementById('wasteLabel').innerText = w + '%';
+            }
+            zones = (Array.isArray(s.zones) ? s.zones : []).map(sanitizeZone).filter(Boolean);
+            rowCounter = parseInt(s.rowCounter) || 0;
+            manualItems = sanitizeManualItems(s.manualItems);
+            manualItems.forEach(it => { rowCounter = Math.max(rowCounter, parseInt(it.id.slice(2)) || 0); });
+            currentPrices = { ...currentPrices, ...sanitizePrices(s.currentPrices) };
+            if (toNum(s.lastWallH) > 0) lastWallH = toNum(s.lastWallH);
+            pdfTexts = sanitizeTexts(s.pdfTexts);
+        } else {
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientAddress').value = '';
+            document.getElementById('invoiceDate').value = new Date().toISOString().split('T')[0];
+            currentWastePercent = 10;
+            document.getElementById('wasteSlider').value = 10;
+            document.getElementById('wasteLabel').innerText = '10%';
+            lastWallH = 2800;
+        }
+        const dataUrl = await loadImageFromDB('image_' + id);
+        if (dataUrl) await restoreImageFromDataUrl(dataUrl);
+        else resetCanvasView();
+        updatePrintHeader();
+        calculate();
+        renderList();
+        fitToScreen();
+        if (img.src) redrawCanvas();
+    }
+    async function deleteProject(id) {
+        if (!confirm('Удалить проект?')) return;
+        let projects = JSON.parse(localStorage.getItem('forone_projects_list') || '[]');
+        projects = projects.filter(p => p.id !== id);
+        localStorage.setItem('forone_projects_list', JSON.stringify(projects));
+        localStorage.removeItem('forone_proj_' + id);
+        await deleteImageFromDB('image_' + id);
+        renderProjectsList();
+    }
+    function backToProjects() {
+        clearTimeout(saveTimeout);
+        saveState();
+        currentProjectId = null;
+        document.getElementById('projectsView').style.display = 'flex';
+        document.getElementById('editorView').style.display = 'none';
+        renderProjectsList();
+    }
+    function renderProjectsList() {
+        let projects = JSON.parse(localStorage.getItem('forone_projects_list') || '[]');
+        projects.sort((a, b) => b.id.localeCompare(a.id));
+        const grid = document.getElementById('projectsGrid');
+        grid.innerHTML = '';
+        if (projects.length === 0) {
+            grid.innerHTML = '<div class="empty-projects"><i class="fas fa-folder-open" style="font-size:40px; margin-bottom:10px; opacity:0.5;"></i><br>Нет сохраненных проектов. Создайте новый!</div>';
+            return;
+        }
+        projects.forEach(p => {
+            let div = document.createElement('div');
+            div.className = 'project-card';
+            let dateStr = 'Неизвестно';
+            if (p.id && p.id.includes('_')) {
+                let ts = parseInt(p.id.split('_')[1]);
+                if (!isNaN(ts)) dateStr = new Date(ts).toLocaleString('ru-RU');
+            }
+            div.innerHTML = `
+                <button class="btn-delete-proj" onclick="event.stopPropagation(); deleteProject('${p.id}')" title="Удалить"><i class="fas fa-trash"></i></button>
+                <h3>${esc(p.name || 'Без названия')}</h3>
+                <p>${esc(p.address || 'Адрес не указан')}</p>
+                <div class="proj-total">${esc(p.total || 0)} тг.</div>
+                <div class="proj-date">${dateStr}</div>
+            `;
+            div.onclick = () => openProject(p.id);
+            grid.appendChild(div);
+        });
+    }
+    function getStateForSave() {
+        return {
+            clientName: document.getElementById('clientName').value,
+            clientAddress: document.getElementById('clientAddress').value,
+            wallH: document.getElementById('wallH').value,
+            wallW: document.getElementById('wallW').value,
+            priceMode: document.getElementById('priceMode').value,
+            panelType: document.getElementById('panelType').value,
+            louverWidth: document.getElementById('louverWidth').value,
+            invoiceNum: document.getElementById('invoiceNum').value,
+            invoiceDate: document.getElementById('invoiceDate').value,
+            waste: currentWastePercent,
+            zones: zones,
+            manualItems: manualItems,
+            rowCounter: rowCounter,
+            currentPrices: currentPrices,
+            lastWallH: lastWallH,
+            pdfTexts: pdfTexts
+        };
+    }
+    function scheduleSave() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(saveState, 500);
+    }
+    function showSaveIndicator() {
+        const now = Date.now();
+        if (now - lastSaveIndicatorShow < 2000) return;
+        lastSaveIndicatorShow = now;
+        const ind = document.getElementById('saveIndicator'); if (!ind) return;
+        ind.textContent = '✓ Сохранено';
+        ind.style.background = '';
+        ind.classList.add('show');
+        clearTimeout(saveIndicatorTimeout);
+        saveIndicatorTimeout = setTimeout(() => ind.classList.remove('show'), 1200);
+    }
+    function saveState() {
+        if (!currentProjectId) return;
+        try {
+            localStorage.setItem('forone_proj_' + currentProjectId, JSON.stringify(getStateForSave()));
+            let projects = JSON.parse(localStorage.getItem('forone_projects_list') || '[]');
+            let proj = projects.find(p => p.id === currentProjectId);
+            if (proj) {
+                proj.name = document.getElementById('clientName').value || 'Без названия';
+                proj.address = document.getElementById('clientAddress').value || '';
+                let totalStr = document.getElementById('grandTotalText').innerText.replace(' тг.', '').trim();
+                proj.total = totalStr;
+                localStorage.setItem('forone_projects_list', JSON.stringify(projects));
+            }
+            showSaveIndicator();
+        } catch (e) { console.warn('saveState:', e); showSaveError(); }
+    }
+    async function clearState() {
+        if (!confirm('Полностью очистить проект?')) return;
+        await deleteImageFromDB('image_' + currentProjectId);
+        zones = []; manualItems = []; rowCounter = 0;
+        undoStack = []; redoStack = [];
+        updateUndoRedoButtons();
+        img = new Image();
+        pdfTexts = [];
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientAddress').value = '';
+        document.getElementById('invoiceDate').value = todayLocal();
+        document.getElementById('wasteSlider').value = 10;
+        currentWastePercent = 10; lastWallH = 2800;
+        document.getElementById('wasteLabel').innerText = '10%';
+        document.getElementById('emptyState').style.display = 'block';
+        canvas.style.display = 'none';
+        updatePrintHeader();
+        updatePricesFromCatalog();
+        renderList();
+        calculate();
+        if (canvas) redrawCanvas();
+        scheduleSave();
+    }
+    function clearZones() {
+        if (!confirm('Удалить все зоны? Картинка и данные заказчика останутся.')) return;
+        pushHistory();
+        zones = [];
+        redrawCanvas();
+        renderList();
+        calculate();
+        scheduleSave();
+    }
+    function updatePrintHeader() {
+        document.getElementById('printClient').innerText = document.getElementById('clientName').value;
+        document.getElementById('printAddress').innerText = document.getElementById('clientAddress').value;
+        document.getElementById('printOrderNum').innerText = document.getElementById('invoiceNum').value || '—';
+        const d = document.getElementById('invoiceDate').value;
+        document.getElementById('printOrderDate').innerText = d ? d.split('-').reverse().join('.') : '—';
+    }
+    function pushHistory() {
+        undoStack.push(JSON.stringify(zones));
+        if (undoStack.length > 50) undoStack.shift();
+        redoStack = [];
+        updateUndoRedoButtons();
+    }
+    function undo() {
+        if (undoStack.length === 0) return;
+        redoStack.push(JSON.stringify(zones));
+        zones = JSON.parse(undoStack.pop());
+        redrawCanvas(); renderList(); calculate();
+        updateUndoRedoButtons();
+        scheduleSave();
+    }
+    function redo() {
+        if (redoStack.length === 0) return;
+        undoStack.push(JSON.stringify(zones));
+        zones = JSON.parse(redoStack.pop());
+        redrawCanvas(); renderList(); calculate();
+        updateUndoRedoButtons();
+        scheduleSave();
+    }
+    function updateUndoRedoButtons() {
+        document.getElementById('btnUndo').disabled = undoStack.length === 0;
+        document.getElementById('btnRedo').disabled = redoStack.length === 0;
+    }
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+
+    /* ============ ИНИЦИАЛИЗАЦИЯ ============ */
+    const forOneInit = async () => {
+        canvas = document.getElementById('canvas');
+        ctx = canvas.getContext('2d');
+        canvas.addEventListener('pointerdown', handlePointerDown);
+        canvas.addEventListener('pointermove', handlePointerMove);
+        canvas.addEventListener('pointerup', handlePointerUp);
+        canvas.addEventListener('pointercancel', handlePointerUp);
+        canvas.addEventListener('pointerleave', handlePointerUp);
+        canvas.addEventListener('dblclick', finishPolygon);
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (isDrawingPoly || isDrawingRect) cancelZone();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                cancelZone();
+                document.getElementById('helpModal').style.display = 'none';
+                document.getElementById('pdfModal').style.display = 'none';
+                if (document.getElementById('catM').style.display === 'block') catClose();
+            }
+            const tg = e.target;
+            const typing = tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA' || tg.tagName === 'SELECT' || tg.isContentEditable);
+            if ((e.ctrlKey || e.metaKey) && !typing && document.getElementById('editorView').style.display === 'flex') {
+                if (e.code === 'KeyZ' && !e.shiftKey) { e.preventDefault(); undo(); }
+                else if (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey)) { e.preventDefault(); redo(); }
+            }
+        });
+        document.getElementById('clientName').addEventListener('input', () => { updatePrintHeader(); scheduleSave(); });
+        document.getElementById('clientAddress').addEventListener('input', () => { updatePrintHeader(); scheduleSave(); });
+        document.getElementById('invoiceNum').addEventListener('input', () => { updatePrintHeader(); scheduleSave(); });
+        document.getElementById('invoiceDate').addEventListener('input', () => { updatePrintHeader(); scheduleSave(); });
+        document.getElementById('wallW').addEventListener('input', () => scheduleSave());
+        document.getElementById('wallW').addEventListener('change', () => { calculate(); scheduleSave(); });
+        document.getElementById('inputRealWidth').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveZone(); } });
+        document.addEventListener('visibilitychange', () => { if (document.hidden) { clearTimeout(saveTimeout); saveState(); } });
+        window.addEventListener('pagehide', () => { clearTimeout(saveTimeout); saveState(); });
+        window.addEventListener('pointercancel', () => window.dispatchEvent(new Event('pointerup')));
+        try {
+            if (navigator.storage && navigator.storage.persist && !localStorage.getItem('forone_persist_asked')) {
+                localStorage.setItem('forone_persist_asked', '1');
+                navigator.storage.persist().catch(() => {});
+            }
+        } catch (err) {}
+        document.getElementById('wallH').addEventListener('input', () => scheduleSave());
+        document.getElementById('wallH').addEventListener('change', (e) => {
+            const newH = parseFloat(e.target.value) || 0;
+            if (lastWallH > 0 && newH > 0 && newH !== lastWallH && zones.length > 0) {
+                pushHistory();
+                const ratio = newH / lastWallH;
+                zones.forEach(z => { z.realHeight = Math.max(1, Math.round((z.realHeight || newH) * ratio)); });
+                renderList();
+                redrawCanvas();
+            }
+            if (newH > 0) lastWallH = newH;
+            calculate();
+            scheduleSave();
+        });
+        try { await initDB(); } catch (e) { console.warn('initDB:', e); }
+        populateSelects();
+        updatePrintHeader();
+        let projects = JSON.parse(localStorage.getItem('forone_projects_list') || '[]');
+        if (projects.length === 0) createNewProject();
+        else renderProjectsList();
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', forOneInit);
+    else forOneInit();
+
+    /* ============ СЕЛЕКТЫ ============ */
+    function populateSelects() {
+        const panelSelect = document.getElementById('panelType');
+        const louverSelect = document.getElementById('louverWidth');
+        panelSelect.innerHTML = '';
+        louverSelect.innerHTML = '';
+        for (const [art, data] of Object.entries(catalog.panels)) {
+            const opt = document.createElement('option');
+            opt.value = art; opt.textContent = data.name;
+            panelSelect.appendChild(opt);
+        }
+        panelSelect.value = 'K01-127X';
+        for (const [art, data] of Object.entries(catalog.louvers)) {
+            const opt = document.createElement('option');
+            opt.value = art; opt.textContent = data.name;
+            louverSelect.appendChild(opt);
+        }
+        louverSelect.value = 'K01-17N';
+    }
+    function changePriceMode() { updatePricesFromCatalog(); }
+    function updatePricesFromCatalog() {
+        const mode = document.getElementById('priceMode').value;
+        const panelArt = document.getElementById('panelType').value;
+        const louverArt = document.getElementById('louverWidth').value;
+        if (catalog.panels[panelArt]) currentPrices.panel = catalog.panels[panelArt][mode];
+        if (catalog.louvers[louverArt]) currentPrices.louver = catalog.louvers[louverArt][mode];
+        currentPrices.connectProfile = catalog.profiles.connect[mode];
+        currentPrices.finishProfile = catalog.profiles.finish[mode];
+        currentPrices.glue = catalog.profiles.glue[mode];
+        calculate();
+        scheduleSave();
+    }
+
+    /* ============ ZOOM / PAN ============ */
+    function updateTransform() { if (canvas) canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`; }
+    function applyZoom(nz) {
+        currentZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, nz));
+        const slider = document.getElementById('zoomSlider');
+        if (slider) slider.value = Math.round(currentZoom * 100);
+        document.getElementById('zoomText').innerText = Math.round(currentZoom * 100) + '%';
+        updateTransform();
+    }
+    function zoomIn() { applyZoom(currentZoom + 0.2); scheduleSave(); }
+    function zoomOut() { applyZoom(currentZoom - 0.2); scheduleSave(); }
+    function onZoomSliderChange(v) { applyZoom(v / 100); scheduleSave(); }
+    function fitToScreen() {
+        const container = document.getElementById('canvasContainer');
+        if (!img.src || container.clientWidth === 0 || container.clientHeight === 0) return;
+        const cw = container.clientWidth - 40, ch = container.clientHeight - 40;
+        const iw = img.width, ih = img.height;
+        const scaleX = cw / iw, scaleY = ch / ih;
+        let newZoom = Math.min(scaleX, scaleY);
+        if (newZoom > 1) newZoom = 1;
+        panX = 0; panY = 0;
+        applyZoom(newZoom);
+        scheduleSave();
+    }
+    function resetView() { fitToScreen(); }
+    function updateWaste(val) {
+        currentWastePercent = parseInt(val);
+        document.getElementById('wasteLabel').innerText = val + '%';
+        clearTimeout(wasteDebounce);
+        wasteDebounce = setTimeout(() => { calculate(); scheduleSave(); }, 200);
+    }
+
+    /* ============ ИНСТРУМЕНТЫ ============ */
+    function setTool(tool) {
+        currentTool = tool;
+        document.querySelectorAll('.floating-tools .tool-btn').forEach(b => b.classList.remove('active'));
+        const map = { panel: 'btnPanel', custom: 'btnPoly', louver: 'btnLouver', move: 'btnMove' };
+        const btn = document.getElementById(map[tool]);
+        if (btn) btn.classList.add('active');
+        const louverSettings = document.getElementById('louverSettings');
+        if (tool === 'louver') louverSettings.style.display = 'flex';
+        else louverSettings.style.display = 'none';
+        canvas.style.cursor = tool === 'move' ? 'grab' : 'crosshair';
+        cancelZone();
+    }
+
+    /* ============ ЗАГРУЗКА PDF ============ */
+    async function loadFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const typedarray = new Uint8Array(event.target.result);
+                    currentPdfDoc = await pdfjsLib.getDocument(typedarray).promise;
+                    document.getElementById('pdfModal').style.display = 'block';
+                    document.getElementById('pdfThumbnails').innerHTML = '';
+                    document.getElementById('pdfStatusText').innerText = 'Загрузка страниц...';
+                    document.getElementById('btnLoadPdfPages').disabled = true;
+                    document.getElementById('pdfSelectAll').checked = false;
+                    await renderPdfThumbnails(currentPdfDoc);
+                } catch (err) {
+                    console.error("Ошибка чтения PDF:", err);
+                    alert("Не удалось прочитать PDF файл.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            alert('Поддерживается только PDF.');
+        }
+        e.target.value = '';
+    }
+    async function renderPdfThumbnails(pdf) {
+        const container = document.getElementById('pdfThumbnails');
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 0.4 });
+            const canvasEl = document.createElement('canvas');
+            const context = canvasEl.getContext('2d');
+            canvasEl.height = viewport.height;
+            canvasEl.width = viewport.width;
+            context.fillStyle = '#ffffff'; context.fillRect(0, 0, canvasEl.width, canvasEl.height);
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            const dataUrl = canvasEl.toDataURL('image/jpeg', 0.7);
+            const card = document.createElement('div');
+            card.className = 'pdf-page-card';
+            card.innerHTML = `
+                <img src="${dataUrl}" alt="Стр ${i}">
+                <label><input type="checkbox" value="${i}" onchange="updatePdfSelection()"> Страница ${i}</label>
+            `;
+            card.onclick = (ev) => {
+                if (ev.target.tagName !== 'INPUT') {
+                    const cb = card.querySelector('input');
+                    cb.checked = !cb.checked;
+                    updatePdfSelection();
+                }
+            };
+            container.appendChild(card);
+        }
+        document.getElementById('pdfStatusText').innerText = `Найдено страниц: ${pdf.numPages}`;
+    }
+    function updatePdfSelection() {
+        const checked = document.querySelectorAll('#pdfThumbnails input:checked').length;
+        document.getElementById('btnLoadPdfPages').disabled = checked === 0;
+        document.querySelectorAll('#pdfThumbnails .pdf-page-card').forEach(card => {
+            if (card.querySelector('input').checked) card.classList.add('selected');
+            else card.classList.remove('selected');
+        });
+    }
+    function toggleAllPdfPages(checked) {
+        document.querySelectorAll('#pdfThumbnails input[type="checkbox"]').forEach(cb => cb.checked = checked);
+        updatePdfSelection();
+    }
+    function pdfScale(page) {
+        const v = page.getViewport({ scale: 1 });
+        return Math.min(2, 3000 / Math.max(v.width, v.height));
+    }
+    async function loadSelectedPdfPages() {
+        try { await loadSelectedPdfPagesImpl(); } catch (err) {
+            console.error(err);
+            alert('Не удалось обработать страницы PDF.');
+        }
+    }
+    async function loadSelectedPdfPagesImpl() {
+        const checkboxes = document.querySelectorAll('#pdfThumbnails input:checked');
+        if (checkboxes.length === 0) return;
+        const pagesToLoad = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a, b) => a - b);
+        document.getElementById('pdfModal').style.display = 'none';
+        if (pagesToLoad.length === 1) {
+            const page = await currentPdfDoc.getPage(pagesToLoad[0]);
+            const viewport = page.getViewport({ scale: pdfScale(page) });
+            const canvasEl = document.createElement('canvas');
+            const context = canvasEl.getContext('2d');
+            canvasEl.height = viewport.height;
+            canvasEl.width = viewport.width;
+            context.fillStyle = '#ffffff'; context.fillRect(0, 0, canvasEl.width, canvasEl.height);
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            const dataUrl = canvasEl.toDataURL('image/jpeg', 0.85);
+            pendingTexts = await pdfPageTexts(page, viewport, 1, 0);
+            await processLoadedImage(dataUrl);
+        } else {
+            const canvases = [], pgInfo = [];
+            let totalHeight = 0, maxWidth = 0;
+            for (let pNum of pagesToLoad) {
+                const page = await currentPdfDoc.getPage(pNum);
+                const viewport = page.getViewport({ scale: pdfScale(page) });
+                const cvs = document.createElement('canvas');
+                cvs.height = viewport.height;
+                cvs.width = viewport.width;
+                await page.render({ canvasContext: cvs.getContext('2d'), viewport: viewport }).promise;
+                canvases.push(cvs);
+                pgInfo.push({ page, viewport, h: cvs.height });
+                totalHeight += cvs.height + 20;
+                if (cvs.width > maxWidth) maxWidth = cvs.width;
+            }
+            const finalCanvas = document.createElement('canvas');
+            const k = Math.min(1, Math.sqrt(14e6 / (maxWidth * (totalHeight - 20))));
+            finalCanvas.width = Math.round(maxWidth * k);
+            finalCanvas.height = Math.round((totalHeight - 20) * k);
+            const finalCtx = finalCanvas.getContext('2d');
+            finalCtx.fillStyle = '#ffffff';
+            finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+            let currentY = 0;
+            canvases.forEach((cvs, idx) => {
+                finalCtx.drawImage(cvs, 0, currentY * k, cvs.width * k, cvs.height * k);
+                currentY += cvs.height;
+                if (idx < canvases.length - 1) {
+                    finalCtx.fillStyle = '#000000';
+                    finalCtx.fillRect(0, currentY * k, finalCanvas.width, 20 * k);
+                    currentY += 20;
+                }
+            });
+            const dataUrl = finalCanvas.toDataURL('image/jpeg', 0.85);
+            pendingTexts = [];
+            let offY = 0;
+            for (const pi of pgInfo) {
+                pendingTexts = pendingTexts.concat(await pdfPageTexts(pi.page, pi.viewport, k, offY * k));
+                offY += pi.h + 20;
+            }
+            await processLoadedImage(dataUrl);
+        }
+    }
+    async function processLoadedImage(dataUrl) {
+        if (zones.length > 0 && !confirm('Новая картинка заменит текущую: нарисованные зоны будут удалены. Продолжить?')) return;
+        pdfTexts = pendingTexts || []; pendingTexts = [];
+        img.onload = async () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            document.getElementById('emptyState').style.display = 'none';
+            canvas.style.display = 'block';
+            if (zones.length > 0) pushHistory();
+            zones = [];
+            renderList();
+            calculate();
+            fitToScreen();
+            redrawCanvas();
+            try { await saveImageToDB(dataUrl, 'image_' + currentProjectId); scheduleSave(); } catch (err) { console.warn(err); }
+        };
+        img.src = dataUrl;
+    }
+    function resetCanvasView() {
+        img = new Image();
+        pdfTexts = [];
+        canvas.width = 0; canvas.height = 0;
+        document.getElementById('emptyState').style.display = 'block';
+        canvas.style.display = 'none';
+    }
+    function restoreImageFromDataUrl(dataUrl) {
+        return new Promise((resolve) => {
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                document.getElementById('emptyState').style.display = 'none';
+                canvas.style.display = 'block';
+                redrawCanvas();
+                resolve();
+            };
+            img.onerror = () => resolve();
+            img.src = dataUrl;
+        });
+    }
+
+    /* ============ КООРДИНАТЫ И ЗОНЫ ============ */
+    function getPos(e) {
+        const r = canvas.getBoundingClientRect();
+        return {
+            x: (e.clientX - r.left) * (canvas.width / r.width),
+            y: (e.clientY - r.top) * (canvas.height / r.height)
+        };
+    }
+    function isPointInPolygon(p, poly) {
+        let inside = false;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+            const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+            if (((yi > p.y) !== (yj > p.y)) && (p.x < (xj - xi) * (p.y - yi) / (yj - yi) + xi)) inside = !inside;
+        }
+        return inside;
+    }
+    function getZoneHandles(z) {
+        if (z.isPoly && z.points) return z.points.map((p, i) => ({ x: p.x, y: p.y, cursor: 'move', dir: 'poly-' + i }));
+        if (z.isPoly) return [];
+        return [
+            { x: z.x, y: z.y, cursor: 'nwse-resize', dir: 'tl' },
+            { x: z.x + z.w, y: z.y, cursor: 'nesw-resize', dir: 'tr' },
+            { x: z.x, y: z.y + z.h, cursor: 'nesw-resize', dir: 'bl' },
+            { x: z.x + z.w, y: z.y + z.h, cursor: 'nwse-resize', dir: 'br' }
+        ];
+    }
+    function getPinchDistance() {
+        if (activePointers.size < 2) return 0;
+        const p = Array.from(activePointers.values());
+        return Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+    }
+
+    /* ============ ОБРАБОТЧИКИ ============ */
+    function handlePointerDown(e) {
+        if (!img.src) return;
+        e.preventDefault();
+        activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (activePointers.size === 2) {
+            isPinching = true;
+            initialPinchDistance = getPinchDistance();
+            initialPinchZoom = currentZoom;
+            isDrawingRect = false; isDrawingPoly = false; polyPoints = []; isPanning = false; isResizing = false; isMovingZone = false;
+            redrawCanvas();
+            return;
+        }
+        if (currentTool === 'move') {
+            const pos = getPos(e);
+            for (let i = zones.length - 1; i >= 0; i--) {
+                const z = zones[i];
+                let inside = false;
+                if (z.isPoly && z.points) inside = isPointInPolygon(pos, z.points);
+                else if (!z.isPoly) inside = pos.x >= z.x && pos.x <= z.x + z.w && pos.y >= z.y && pos.y <= z.y + z.h;
+                if (inside) {
+                    historyPushedThisAction = false;
+                    isMovingZone = true;
+                    movingZone = z;
+                    moveStartX = pos.x;
+                    moveStartY = pos.y;
+                    initialZoneX = z.x;
+                    initialZoneY = z.y;
+                    if (z.isPoly && z.points) initialPolyPoints = z.points.map(p => ({ x: p.x, y: p.y }));
+                    return;
+                }
+            }
+            isPanning = true;
+            startPanX = e.clientX; startPanY = e.clientY;
+            initialPanX = panX; initialPanY = panY;
+            canvas.style.cursor = 'grabbing';
+            return;
+        }
+        const pos = getPos(e);
+        if (!isDrawingPoly && !isDrawingRect) {
+            for (let z of zones) {
+                for (let h of getZoneHandles(z)) {
+                    if (Math.hypot(pos.x - h.x, pos.y - h.y) < HANDLE_SIZE * 2) {
+                        historyPushedThisAction = false;
+                        isResizing = true; resizeHandle = h.dir; resizingZone = z; return;
+                    }
+                }
+            }
+        }
+        if (currentTool !== 'custom') {
+            isDrawingRect = true; startX = pos.x; startY = pos.y; currentX = startX; currentY = startY;
+        } else {
+            if (!isDrawingPoly) {
+                isDrawingPoly = true;
+                polyPoints = [{ x: pos.x, y: pos.y }];
+                currentX = pos.x; currentY = pos.y;
+            } else {
+                const d = Math.hypot(pos.x - polyPoints[0].x, pos.y - polyPoints[0].y);
+                if (d < 30 && polyPoints.length >= 3) { finishPolygon(); return; }
+                polyPoints.push({ x: pos.x, y: pos.y });
+                currentX = pos.x; currentY = pos.y;
+            }
+            redrawCanvas();
+        }
+    }
+    function handlePointerMove(e) {
+        if (!img.src) return;
+        if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (isPinching && activePointers.size === 2) {
+            applyZoom(initialPinchZoom * (getPinchDistance() / initialPinchDistance));
+            return;
+        }
+        if (isPanning) {
+            panX = initialPanX + (e.clientX - startPanX);
+            panY = initialPanY + (e.clientY - startPanY);
+            updateTransform();
+            return;
+        }
+        const pos = getPos(e);
+        currentX = pos.x; currentY = pos.y;
+        if (!isResizing && !isMovingZone && !isDrawingRect && !isDrawingPoly && currentTool !== 'move') {
+            let cursor = 'crosshair';
+            let hover = null;
+            for (let i = zones.length - 1; i >= 0; i--) {
+                const z = zones[i];
+                let inside = false;
+                if (z.isPoly && z.points) inside = isPointInPolygon(pos, z.points);
+                else if (!z.isPoly) inside = pos.x >= z.x && pos.x <= z.x + z.w && pos.y >= z.y && pos.y <= z.y + z.h;
+                if (inside) { hover = z.id; break; }
+            }
+            for (let z of zones) {
+                for (let h of getZoneHandles(z)) {
+                    if (Math.hypot(pos.x - h.x, pos.y - h.y) < HANDLE_SIZE * 2) { cursor = h.cursor; hover = z.id; break; }
+                }
+            }
+            canvas.style.cursor = cursor;
+            if (hoveredZoneId !== hover) {
+                hoveredZoneId = hover;
+                redrawCanvas();
+                updateListHover(hoveredZoneId);
+            }
+        }
+        if (isMovingZone && movingZone) {
+            if (!historyPushedThisAction) { pushHistory(); historyPushedThisAction = true; }
+            const dx = pos.x - moveStartX, dy = pos.y - moveStartY;
+            movingZone.x = initialZoneX + dx;
+            movingZone.y = initialZoneY + dy;
+            if (movingZone.isPoly && movingZone.points) {
+                movingZone.points.forEach((p, i) => { p.x = initialPolyPoints[i].x + dx; p.y = initialPolyPoints[i].y + dy; });
+            }
+            redrawCanvas();
+            return;
+        }
+        if (isResizing && resizingZone) {
+            if (!historyPushedThisAction) { pushHistory(); historyPushedThisAction = true; }
+            if (resizingZone.isPoly && resizeHandle.startsWith('poly-')) {
+                const idx = parseInt(resizeHandle.split('-')[1]);
+                resizingZone.points[idx].x = pos.x;
+                resizingZone.points[idx].y = pos.y;
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                resizingZone.points.forEach(p => {
+                    if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
+                    if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
+                });
+                resizingZone.x = minX; resizingZone.y = minY;
+                resizingZone.w = maxX - minX; resizingZone.h = maxY - minY;
+                redrawCanvas(); return;
+            }
+            if (!resizingZone.isPoly) {
+                if (resizeHandle.includes('l')) { const nw = resizingZone.x + resizingZone.w - pos.x; if (nw > 10) { resizingZone.w = nw; resizingZone.x = pos.x; } }
+                if (resizeHandle.includes('r')) { const nw = pos.x - resizingZone.x; if (nw > 10) resizingZone.w = nw; }
+                if (resizeHandle.includes('t')) { const nh = resizingZone.y + resizingZone.h - pos.y; if (nh > 10) { resizingZone.h = nh; resizingZone.y = pos.y; } }
+                if (resizeHandle.includes('b')) { const nh = pos.y - resizingZone.y; if (nh > 10) resizingZone.h = nh; }
+                redrawCanvas(); return;
+            }
+        }
+        if (isDrawingRect || (isDrawingPoly && polyPoints.length > 0)) redrawCanvas();
+    }
+    function handlePointerUp(e) {
+        if (!img.src) return;
+        activePointers.delete(e.pointerId);
+        if (activePointers.size < 2) isPinching = false;
+        if (isPinching) return;
+        if (isPanning) { isPanning = false; canvas.style.cursor = 'grab'; scheduleSave(); return; }
+        if (isMovingZone) { isMovingZone = false; movingZone = null; calculate(); scheduleSave(); return; }
+        if (isResizing) { isResizing = false; resizingZone = null; calculate(); scheduleSave(); return; }
+        if (!isDrawingRect) return;
+        isDrawingRect = false;
+        const x = Math.min(startX, currentX), y = Math.min(startY, currentY);
+        const w = Math.abs(currentX - startX), h = Math.abs(currentY - startY);
+        if (w < 15 || h < 15) { redrawCanvas(); return; }
+        const isLouver = currentTool === 'louver';
+        const defaultW = isLouver ? getLouverWidth() : PANEL_STD_W;
+        pendingZone = {
+            id: 'z' + Date.now(), type: currentTool,
+            x, y, w, h,
+            realWidth: defaultW,
+            realHeight: parseFloat(document.getElementById('wallH').value),
+            isPoly: false,
+            panelArt: isLouver ? null : document.getElementById('panelType').value,
+            louverArt: isLouver ? document.getElementById('louverWidth').value : null
+        };
+        showModal(pendingZone.realWidth, false);
+    }
+    function finishPolygon() {
+        if (!isDrawingPoly) return;
+        polyPoints = polyPoints.filter((p, i) => i === 0 || Math.hypot(p.x - polyPoints[i - 1].x, p.y - polyPoints[i - 1].y) > 4);
+        if (polyPoints.length < 3) return;
+        isDrawingPoly = false;
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        polyPoints.forEach(p => {
+            if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
+            if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
+        });
+        pendingZone = {
+            id: 'z' + Date.now(), type: 'custom',
+            x: minX, y: minY, w: maxX - minX, h: maxY - minY,
+            realWidth: '', realHeight: parseFloat(document.getElementById('wallH').value),
+            isPoly: true, points: [...polyPoints],
+            panelArt: document.getElementById('panelType').value,
+            louverArt: null
+        };
+        showModal(pendingZone.realWidth, false);
+    }
+    function showModal(w, isEditing) {
+        document.getElementById('inputRealWidth').value = w || '';
+        document.getElementById('inputRealWidth').style.borderColor = '';
+        document.getElementById('modalOverlay').style.display = 'block';
+        setTimeout(() => document.getElementById('inputRealWidth').focus(), 100);
+        editingZoneId = isEditing ? pendingZone.id : null;
+    }
+    function cancelZone() {
+        document.getElementById('modalOverlay').style.display = 'none';
+        pendingZone = null;
+        polyPoints = [];
+        isDrawingPoly = false; isDrawingRect = false;
+        isResizing = false; resizingZone = null; editingZoneId = null; isMovingZone = false;
+        redrawCanvas();
+    }
+    function saveZone() {
+        if (!pendingZone) { cancelZone(); return; }
+        const rw = parseFloat(document.getElementById('inputRealWidth').value);
+        if (!(rw > 0)) {
+            const inp = document.getElementById('inputRealWidth');
+            inp.style.borderColor = 'var(--danger)';
+            inp.focus();
+            return;
+        }
+        pendingZone.realWidth = rw;
+        pushHistory();
+        if (editingZoneId) {
+            const idx = zones.findIndex(z => z.id === editingZoneId);
+            if (idx !== -1) zones[idx] = { ...pendingZone };
+        } else {
+            zones.push({ ...pendingZone, qty: 1 });
+        }
+        renderList();
+        calculate();
+        scheduleSave();
+        cancelZone();
+    }
+
+    /* ============ ОТРИСОВКА ============ */
+    function redrawCanvas() {
+        if (!img.src) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        const accentColor = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+        const glowColor = getComputedStyle(document.body).getPropertyValue('--glow').trim();
+        const textColor = getComputedStyle(document.body).getPropertyValue('--text-main').trim();
+        const canvasWidth = canvas.width;
+        const fontSize = Math.max(16, canvasWidth / 55);
+        zones.forEach((z, idx) => {
+            ctx.beginPath();
+            if (z.isPoly && z.points) {
+                ctx.moveTo(z.points[0].x, z.points[0].y);
+                z.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.closePath();
+            } else {
+                ctx.rect(z.x, z.y, z.w, z.h);
+            }
+            if (z.id === hoveredZoneId) {
+                ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 6;
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
+            } else {
+                ctx.strokeStyle = z.type === 'panel' ? accentColor : (z.type === 'louver' ? '#3b82f6' : accentColor);
+                ctx.lineWidth = Math.max(3, canvasWidth / 400);
+                ctx.fillStyle = z.type === 'panel' ? glowColor : 'rgba(59, 130, 246, 0.2)';
+            }
+            ctx.stroke(); ctx.fill();
+            const badgeText = (idx + 1).toString();
+            ctx.font = `bold ${Math.max(14, canvasWidth / 60)}px Inter`;
+            const textWidth = ctx.measureText(badgeText).width;
+            const bx = z.x + 10, by = z.y + 10;
+            const bw = textWidth + 14;
+            const bh = Math.max(20, canvasWidth / 60) + 4;
+            ctx.fillStyle = z.id === hoveredZoneId ? '#ef4444' : '#000000';
+            ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 6); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(badgeText, bx + bw / 2, by + bh / 2);
+            if (z.realWidth) {
+                ctx.font = `bold ${fontSize}px Inter`;
+                ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+                const sizeText = `${z.realWidth}×${z.realHeight}`;
+                ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 4;
+                ctx.strokeText(sizeText, bx + bw + 8, by + bh - 4);
+                ctx.fillStyle = z.id === hoveredZoneId ? '#fff' : textColor;
+                ctx.fillText(sizeText, bx + bw + 8, by + bh - 4);
+            }
+            if (!z.isPoly) {
+                getZoneHandles(z).forEach(h => {
+                    ctx.beginPath(); ctx.arc(h.x, h.y, HANDLE_SIZE, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff'; ctx.fill();
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
+                });
+            } else if (z.points) {
+                z.points.forEach(p => {
+                    ctx.beginPath(); ctx.arc(p.x, p.y, HANDLE_SIZE * 0.8, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff'; ctx.fill();
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
+                });
+            }
+        });
+        if (isDrawingRect) {
+            ctx.strokeStyle = textColor; ctx.setLineDash([5, 5]);
+            ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+            ctx.setLineDash([]);
+        }
+        if (isDrawingPoly && polyPoints.length > 0) {
+            ctx.beginPath();
+            ctx.moveTo(polyPoints[0].x, polyPoints[0].y);
+            for (let i = 1; i < polyPoints.length; i++) ctx.lineTo(polyPoints[i].x, polyPoints[i].y);
+            ctx.lineTo(currentX, currentY);
+            if (polyPoints.length >= 2) { ctx.fillStyle = 'rgba(16, 185, 129, 0.25)'; ctx.fill(); }
+            ctx.strokeStyle = '#10b981'; ctx.lineWidth = 4; ctx.stroke();
+            polyPoints.forEach((p, i) => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, i === 0 ? 10 : 5, 0, Math.PI * 2);
+                ctx.fillStyle = i === 0 ? accentColor : '#10b981'; ctx.fill();
+                if (i === 0) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke(); }
+            });
+        }
+    }
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+            this.beginPath();
+            this.moveTo(x + r, y);
+            this.arcTo(x + w, y, x + w, y + h, r);
+            this.arcTo(x + w, y + h, x, y + h, r);
+            this.arcTo(x, y + h, x, y, r);
+            this.arcTo(x, y, x + w, y, r);
+            this.closePath();
+            return this;
+        };
+    }
+
+    /* ============ СПИСОК ЗОН ============ */
+    function louverBadge(z) {
+        if (z.type !== 'louver') return '';
+        const rw = parseFloat(z.realWidth) || 0;
+        const lw = getLouverWidth(z.louverArt);
+        const n = rw > 0 ? Math.ceil(rw / lw - 0.0001) : 0;
+        return `<span style="margin-left:6px; font-size:11px; font-weight:bold; color:var(--accent); white-space:nowrap;" title="Рейки ${lw}×${PANEL_STD_L} мм">Лув.: ${n} шт</span>`;
+    }
+    function renderList() {
+        const list = document.getElementById('zonesList');
+        if (zones.length === 0) {
+            list.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 12px;">Нет зон</div>';
+            updateStats();
+            return;
+        }
+        list.innerHTML = zones.map((z, i) => `
+            <div class="zone-item ${z.id === hoveredZoneId ? 'hovered' : ''}"
+                 id="zone-item-${z.id}"
+                 onmouseenter="setListHover('${z.id}')"
+                 onmouseleave="setListHover(null)">
+                <div style="flex-grow: 1;">
+                    <div style="display:flex; align-items:center; gap:5px; margin-bottom:4px;">
+                        <span style="cursor:pointer" onclick="toggleZoneType(${i}); event.stopPropagation();" title="Нажмите: панель ⇄ лувер" class="zone-badge ${z.type === 'panel' ? 'badge-panel' : (z.type === 'louver' ? 'badge-louver' : 'badge-panel')}">${z.type === 'panel' ? 'ПАНЕЛЬ' : (z.type === 'louver' ? 'ЛУВЕР' : 'ДИАГОНАЛЬ')}</span>
+                        <span style="font-weight:bold; color:var(--text-muted); font-size:10px;">№${i + 1}</span>
+                    </div>
+                    <div class="zone-dimensions">
+                        <input type="number" class="dim-input" value="${z.realWidth}" onchange="changeDimension(${i}, 'realWidth', this.value)" onclick="event.stopPropagation()" title="Ширина, мм">
+                        <span style="font-size: 11px; color: var(--text-muted);">×</span>
+                        <input type="number" class="dim-input" value="${z.realHeight}" onchange="changeDimension(${i}, 'realHeight', this.value)" onclick="event.stopPropagation()" title="Высота, мм">
+                        ${louverBadge(z)}
+                    </div>
+                </div>
+                <div class="zone-controls">
+                    <input type="number" min="1" value="${z.qty || 1}" onchange="changeQty(${i}, this.value)" onclick="event.stopPropagation()" title="Количество">
+                    <button class="btn-icon copy" onclick="copyZone(${i}); event.stopPropagation();" title="Копировать"><i class="fas fa-copy"></i></button>
+                    <button class="btn-icon" onclick="deleteZone(${i}); event.stopPropagation();" title="Удалить"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+        `).join('');
+        updateStats();
+    }
+    function setListHover(id) {
+        if (hoveredZoneId !== id) {
+            hoveredZoneId = id;
+            redrawCanvas();
+            updateListHover(id);
+        }
+    }
+    function updateListHover(id) {
+        document.querySelectorAll('.zone-item').forEach(el => el.classList.remove('hovered'));
+        if (id) {
+            const el = document.getElementById('zone-item-' + id);
+            if (el) { el.classList.add('hovered'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+        }
+    }
+    function changeQty(i, v) { pushHistory(); zones[i].qty = Math.max(1, parseInt(v) || 1); calculate(); scheduleSave(); }
+    function changeDimension(i, field, v) {
+        const n = parseFloat(v);
+        if (!isNaN(n) && n > 0) { pushHistory(); zones[i][field] = n; redrawCanvas(); calculate(); scheduleSave(); }
+    }
+    function deleteZone(i) { pushHistory(); zones.splice(i, 1); redrawCanvas(); renderList(); calculate(); scheduleSave(); }
+    function copyZone(i) {
+        const z = zones[i]; if (!z) return;
+        pushHistory();
+        const copy = JSON.parse(JSON.stringify(z));
+        copy.id = 'z' + Date.now() + Math.floor(Math.random() * 1000);
+        copy.qty = 1;
+        copy.x = z.x + 20; copy.y = z.y + 20;
+        if (copy.points) copy.points = copy.points.map(p => ({ x: p.x + 20, y: p.y + 20 }));
+        zones.push(copy);
+        renderList();
+        calculate();
+        redrawCanvas();
+        scheduleSave();
+    }
+    function toggleZoneType(i) {
+        const z = zones[i]; if (!z) return;
+        pushHistory();
+        if (z.type === 'louver') {
+            z.type = 'panel';
+            z.panelArt = document.getElementById('panelType').value;
+            z.louverArt = null;
+        } else {
+            z.type = 'louver';
+            z.louverArt = document.getElementById('louverWidth').value;
+            z.panelArt = null;
+        }
+        redrawCanvas(); renderList(); calculate(); scheduleSave();
+    }
+
+    /* ============ РУЧНЫЕ ПОЗИЦИИ ============ */
+    function addManualRow() {
+        rowCounter++;
+        manualItems.push({ id: 'm_' + rowCounter, name: 'Новая позиция', qty: 1, unit: 'шт', price: 0 });
+        calculate();
+        scheduleSave();
+    }
+    function removeManualRow(id) {
+        manualItems = manualItems.filter(item => item.id !== id);
+        calculate();
+        scheduleSave();
+    }
+    function updateManualItem(id, field, value) {
+        const item = manualItems.find(i => i.id === id);
+        if (item) {
+            if (field === 'name' || field === 'unit') item[field] = value;
+            else item[field] = Math.max(0, parseFloat(value) || 0);
+            calculateTotalOnly();
+            scheduleSave();
+        }
+    }
+    function updatePrice(key, value) {
+        currentPrices[key] = Math.max(0, parseFloat(value) || 0);
+        calculateTotalOnly();
+        scheduleSave();
+    }
+    function updateRowPriceInput(inp) {
+        // для строк артикулов — редактируемая цена, только для сметы (не меняет каталог)
+        const qty = parseFloat(inp.dataset.qty) || 0;
+        const price = parseFloat(inp.value) || 0;
+        const row = inp.closest('tr');
+        if (row) {
+            const tc = row.querySelector('.total-cell');
+            if (tc) tc.innerText = (qty * price).toLocaleString('ru-RU');
+        }
+        calculateTotalOnly();
+    }
+
+    function calculateTotalOnly() {
+        let grand = 0;
+        document.querySelectorAll('.calc-base-price').forEach(inp => {
+            const qty = parseFloat(inp.dataset.qty) || 0;
+            const price = parseFloat(inp.value) || 0;
+            grand += qty * price;
+            const row = inp.closest('tr').querySelector('.total-cell');
+            if (row) row.innerText = (qty * price).toLocaleString('ru-RU');
+        });
+        manualItems.forEach(item => {
+            grand += item.qty * item.price;
+            const row = document.getElementById('row_' + item.id);
+            if (row) {
+                const tc = row.querySelector('.total-cell');
+                if (tc) tc.innerText = (item.qty * item.price).toLocaleString('ru-RU');
+            }
+        });
+        document.getElementById('grandTotalText').innerText = grand.toLocaleString('ru-RU') + ' тг.';
+    }
+
+    /* ============ ГЛАВНЫЙ РАСЧЁТ ============ */
+    // Возвращает:
+    // {
+    //   areaSqM: totalAreaSqM, elements: totalElements,
+    //   panels: [ {art, count, raw, width} ],
+    //   louvers: [ {art, count, raw, width} ],
+    //   totalPanels, totalLouvers
+    // }
+    function computeCounts() {
+        // 1. Сбор деталей по артикулам + площадь
+        const panelsByArt = {}; // {art: {width, pieces: [{w,h,qty}]}}
+        const louversByArt = {};
+        let totalAreaSqM = 0;
+        let totalElements = 0;
+        const currentPanelArt = document.getElementById('panelType').value;
+        const currentLouverArt = document.getElementById('louverWidth').value;
+
+        zones.forEach(z => {
+            const q = z.qty || 1;
+            const rw = parseFloat(z.realWidth) || 0;
+            const rh = parseFloat(z.realHeight) || 0;
+            totalElements += q;
+
+            // Площадь (для полигона — по bbox с поправкой на форму)
+            let areaMM2 = 0;
+            if (z.isPoly && z.points && z.points.length >= 3) {
+                let pxArea = 0;
+                for (let i = 0, j = z.points.length - 1; i < z.points.length; j = i++) {
+                    pxArea += (z.points[j].x + z.points[i].x) * (z.points[j].y - z.points[i].y);
+                }
+                pxArea = Math.abs(pxArea / 2);
+                let bw = Math.max(...z.points.map(p => p.x)) - Math.min(...z.points.map(p => p.x));
+                let bh = Math.max(...z.points.map(p => p.y)) - Math.min(...z.points.map(p => p.y));
+                let bboxArea = (bw * bh) || 1;
+                areaMM2 = (rw * rh) * (pxArea / bboxArea);
+            } else {
+                areaMM2 = rw * rh;
+            }
+            totalAreaSqM += (areaMM2 / 1000000) * q;
+
+            if (rw <= 0 || rh <= 0) return;
+
+            if (z.type === 'louver') {
+                const art = z.louverArt || currentLouverArt;
+                const w = getLouverWidth(art);
+                if (!louversByArt[art]) louversByArt[art] = { width: w, pieces: [] };
+                louversByArt[art].pieces.push({ w: rw, h: rh, qty: q });
+            } else {
+                const art = z.panelArt || currentPanelArt;
+                const w = PANEL_STD_W;
+                if (!panelsByArt[art]) panelsByArt[art] = { width: w, pieces: [] };
+                panelsByArt[art].pieces.push({ w: rw, h: rh, qty: q });
+            }
+        });
+
+        // 2. Упаковка по каждому артикулу
+        function packGroup(group) {
+            const pieces = [];
+            for (const p of group.pieces) {
+                const zonePieces = zoneToCutPieces({ realWidth: p.w, realHeight: p.h, qty: p.qty }, group.width);
+                zonePieces.forEach(zp => pieces.push(zp));
+            }
+            return packPanels(pieces, group.width, PANEL_STD_L);
+        }
+
+        const panels = []; // [{art, count, raw, width}]
+        const louvers = [];
+        let totalPanels = 0, totalLouvers = 0;
+
+        for (const [art, group] of Object.entries(panelsByArt)) {
+            const raw = packGroup(group);
+            const withWaste = raw + Math.ceil(raw * currentWastePercent / 100);
+            panels.push({ art, count: withWaste, raw, width: group.width });
+            totalPanels += withWaste;
+        }
+        for (const [art, group] of Object.entries(louversByArt)) {
+            const raw = packGroup(group);
+            const withWaste = raw + Math.ceil(raw * currentWastePercent / 100);
+            louvers.push({ art, count: withWaste, raw, width: group.width });
+            totalLouvers += withWaste;
+        }
+
+        return { areaSqM: totalAreaSqM, elements: totalElements, panels, louvers, totalPanels, totalLouvers };
+    }
+
+    function updateStats() {
+        const zc = document.getElementById('statZones');
+        const za = document.getElementById('statArea');
+        const zp = document.getElementById('statPanels');
+        if (!zc || !za || !zp) return;
+
+        const c = computeCounts();
+        const totalItems = c.totalPanels + c.totalLouvers;
+
+        zc.innerText = zones.length;
+        za.innerText = c.areaSqM.toFixed(2);
+        zp.innerText = totalItems;
+        zp.title = `Панели: ${c.totalPanels} · Луверы: ${c.totalLouvers}${currentWastePercent ? ' (включая запас ' + currentWastePercent + '%)' : ''}`;
+    }
+
+    function calculate() {
+        const wallH = parseFloat(document.getElementById('wallH').value) || 2800;
+        const wallW = parseFloat(document.getElementById('wallW').value) || 3000;
+
+        const c = computeCounts();
+        const totalAreaSqM = c.areaSqM;
+        const totalElements = c.elements;
+
+        // Профили, клей, работа, доставка
+        const seams = totalElements > 0 ? totalElements - 1 : 0;
+        const connectM = (seams * wallH) / 1000;
+        const connectPieces = Math.ceil(connectM / 3);
+        const finishM = (wallW * 2 + wallH * 2) / 1000;
+        const finishPieces = Math.ceil(finishM / 3);
+        const gluePieces = Math.ceil(totalAreaSqM / 1.5);
+
+        const tbody = document.getElementById('invoiceBody');
+        let html = '';
+        let rowNum = 1;
+        const mode = document.getElementById('priceMode').value;
+
+        function groupRow(title) { return `<tr class="group-row"><td colspan="7">${title}</td></tr>`; }
+
+        // ===== Основные материалы =====
+        if (c.panels.length > 0 || c.louvers.length > 0) {
+            html += groupRow("Основные материалы");
+
+            // Панели по артикулам
+            c.panels.forEach(r => {
+                const item = catalog.panels[r.art];
+                const name = item ? item.name : r.art;
+                const price = item ? item[mode] : currentPrices.panel;
+                const sum = r.count * price;
+                const note = (r.count > r.raw) ? `<div style="font-size:10px; color:var(--text-muted);">из них запас: ${r.count - r.raw} шт</div>` : '';
+                html += `<tr>
+                    <td style="color:var(--text-muted); text-align:center;">${rowNum++}</td>
+                    <td>Бамбуковая панель ${esc(name)}${note}</td>
+                    <td style="text-align:center;">${r.count}</td>
+                    <td style="text-align:center;">шт</td>
+                    <td style="text-align:right;"><input type="number" class="table-input-price calc-base-price" data-qty="${r.count}" value="${price}" onchange="updateRowPriceInput(this)"></td>
+                    <td class="total-cell">${sum.toLocaleString('ru-RU')}</td>
+                    <td></td>
+                </tr>`;
+            });
+
+            // Луверы по артикулам
+            c.louvers.forEach(r => {
+                const item = catalog.louvers[r.art];
+                const name = item ? item.name : r.art;
+                const price = item ? item[mode] : currentPrices.louver;
+                const sum = r.count * price;
+                const note = (r.count > r.raw) ? `<div style="font-size:10px; color:var(--text-muted);">из них запас: ${r.count - r.raw} шт</div>` : '';
+                html += `<tr>
+                    <td style="color:var(--text-muted); text-align:center;">${rowNum++}</td>
+                    <td>Лувер ${esc(name)}${note}</td>
+                    <td style="text-align:center;">${r.count}</td>
+                    <td style="text-align:center;">шт</td>
+                    <td style="text-align:right;"><input type="number" class="table-input-price calc-base-price" data-qty="${r.count}" value="${price}" onchange="updateRowPriceInput(this)"></td>
+                    <td class="total-cell">${sum.toLocaleString('ru-RU')}</td>
+                    <td></td>
+                </tr>`;
+            });
+        }
+
+        // ===== Комплектующие =====
+        if (connectPieces > 0 || finishPieces > 0 || gluePieces > 0) {
+            html += groupRow("Комплектующие и расходники");
+            const comp = [
+                { name: catalog.profiles.connect.name, qty: connectPieces, unit: 'хл', key: 'connectProfile' },
+                { name: catalog.profiles.finish.name, qty: finishPieces, unit: 'хл', key: 'finishProfile' },
+                { name: catalog.profiles.glue.name, qty: gluePieces, unit: 'шт', key: 'glue' }
+            ];
+            comp.forEach(row => {
+                if (row.qty <= 0) return;
+                const price = currentPrices[row.key];
+                html += `<tr>
+                    <td style="color:var(--text-muted); text-align:center;">${rowNum++}</td>
+                    <td>${esc(row.name)}</td>
+                    <td style="text-align:center;">${row.qty}</td>
+                    <td style="text-align:center;">${row.unit}</td>
+                    <td style="text-align:right;"><input type="number" class="table-input-price calc-base-price" data-qty="${row.qty}" value="${price}" onchange="updatePrice('${row.key}', this.value)"></td>
+                    <td class="total-cell">${(row.qty * price).toLocaleString('ru-RU')}</td>
+                    <td></td>
+                </tr>`;
+            });
+        }
+
+        // ===== Работы и услуги =====
+        html += groupRow("Работы и услуги");
+        const laborPrice = currentPrices.labor;
+        const laborQty = Math.ceil(totalAreaSqM);
+        html += `<tr>
+            <td style="color:var(--text-muted); text-align:center;">${rowNum++}</td>
+            <td>Монтажные работы</td>
+            <td style="text-align:center;">${laborQty}</td>
+            <td style="text-align:center;">м2</td>
+            <td style="text-align:right;"><input type="number" class="table-input-price calc-base-price" data-qty="${laborQty}" value="${laborPrice}" onchange="updatePrice('labor', this.value)"></td>
+            <td class="total-cell">${(laborQty * laborPrice).toLocaleString('ru-RU')}</td>
+            <td></td>
+        </tr>`;
+        const delPrice = currentPrices.delivery;
+        html += `<tr>
+            <td style="color:var(--text-muted); text-align:center;">${rowNum++}</td>
+            <td>Доставка</td>
+            <td style="text-align:center;">1</td>
+            <td style="text-align:center;">усл</td>
+            <td style="text-align:right;"><input type="number" class="table-input-price calc-base-price" data-qty="1" value="${delPrice}" onchange="updatePrice('delivery', this.value)"></td>
+            <td class="total-cell">${(1 * delPrice).toLocaleString('ru-RU')}</td>
+            <td></td>
+        </tr>`;
+
+        // ===== Дополнительные позиции =====
+        if (manualItems.length > 0) {
+            html += groupRow("Дополнительные позиции");
+            manualItems.forEach(item => {
+                const sum = item.qty * item.price;
+                html += `<tr id="row_${item.id}">
+                    <td style="color:var(--text-muted); text-align:center;">${rowNum++}</td>
+                    <td><input type="text" class="table-input-text" value="${esc(item.name)}" onchange="updateManualItem('${item.id}', 'name', this.value)"></td>
+                    <td style="text-align:center;"><input type="number" class="table-input-qty" value="${item.qty}" onchange="updateManualItem('${item.id}', 'qty', this.value)"></td>
+                    <td style="text-align:center;"><input type="text" class="table-input-text" style="width:40px;" value="${esc(item.unit)}" onchange="updateManualItem('${item.id}', 'unit', this.value)"></td>
+                    <td style="text-align:right;"><input type="number" class="table-input-price" value="${item.price}" onchange="updateManualItem('${item.id}', 'price', this.value)"></td>
+                    <td class="total-cell">${sum.toLocaleString('ru-RU')}</td>
+                    <td style="text-align:center;"><button class="btn-icon" onclick="removeManualRow('${item.id}')" title="Удалить"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            });
+        }
+
+        tbody.innerHTML = html;
+        calculateTotalOnly();
+        updateStats();
+    }
+
+    /* ============ ЭКСПОРТ CSV / JSON ============ */
+    function exportCSV() {
+        try {
+            const rows = [['№', 'Наименование', 'Кол-во', 'Ед.', 'Цена', 'Сумма']];
+            let rowNum = 1, grand = 0;
+            document.querySelectorAll('#invoiceBody tr').forEach(tr => {
+                if (tr.classList.contains('group-row')) { rows.push(['', tr.textContent.trim(), '', '', '', '']); return; }
+                const cells = tr.querySelectorAll('td');
+                if (cells.length < 6) return;
+                const nameIn = cells[1].querySelector('input');
+                const name = nameIn ? nameIn.value : cells[1].textContent.trim();
+                const qtyIn = cells[2].querySelector('input');
+                const qty = qtyIn ? qtyIn.value : cells[2].textContent.trim();
+                const unitIn = cells[3].querySelector('input');
+                const unit = unitIn ? unitIn.value : cells[3].textContent.trim();
+                const priceIn = cells[4].querySelector('input');
+                const price = priceIn ? priceIn.value : cells[4].textContent.trim().replace(/\s/g, '');
+                const sum = cells[5].textContent.trim().replace(/\s/g, '');
+                rows.push([rowNum++, name, qty, unit, price, sum]);
+                grand += parseFloat(sum) || 0;
+            });
+            rows.push(['', 'ИТОГО', '', '', '', grand]);
+            const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().slice(0, 10);
+            const client = (document.getElementById('clientName').value || 'клиент').replace(/\s+/g, '_');
+            a.href = url;
+            a.download = `Смета_${client}_${date}.csv`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1500);
+        } catch (e) { console.error(e); alert('Ошибка экспорта CSV'); }
+    }
+    async function exportJSON() {
+        try {
+            saveState();
+            const state = getStateForSave();
+            if (img.src && img.src.startsWith('data:')) state.imageDataUrl = img.src;
+            downloadTextFile(JSON.stringify(state, null, 2),
+                `Проект_${(document.getElementById('clientName').value || 'клиент').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.json`,
+                'application/json');
+        } catch (e) { console.error(e); alert('Ошибка экспорта JSON'); }
+    }
+    async function importJSON(e) {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+        try {
+            const data = JSON.parse(await file.text());
+            const items = Array.isArray(data) ? data : (data && Array.isArray(data.projects) ? data.projects : [data]);
+            const valid = items.filter(st => st && typeof st === 'object' && (st.zones || st.manualItems || st.clientName !== undefined));
+            if (!valid.length) throw new Error('файл не похож на проект FORONE');
+            const projects = JSON.parse(localStorage.getItem('forone_projects_list') || '[]');
+            let lastId = null;
+            for (let i = 0; i < valid.length; i++) {
+                const st = valid[i];
+                const id = 'proj_' + (Date.now() + i);
+                const image = typeof st.imageDataUrl === 'string' && st.imageDataUrl.startsWith('data:image/') ? st.imageDataUrl : null;
+                const total = st._total;
+                delete st.imageDataUrl; delete st._total;
+                localStorage.setItem('forone_proj_' + id, JSON.stringify(st));
+                if (image) await saveImageToDB(image, 'image_' + id);
+                projects.push({ id, name: String(st.clientName || 'Импортированный проект'), address: String(st.clientAddress || ''), total: String(total || '0') });
+                localStorage.setItem('forone_projects_list', JSON.stringify(projects));
+                lastId = id;
+            }
+            if (valid.length === 1) await openProject(lastId);
+            else { renderProjectsList(); alert('Импортировано проектов: ' + valid.length); }
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка импорта JSON: ' + err.message);
+        }
+    }
+
+    /* ============ PDF-ТЕКСТ И РАСПОЗНАВАНИЕ ============ */
+    async function pdfPageTexts(page, vp, k, dy) {
+        try {
+            const tc = await page.getTextContent(), out = [];
+            tc.items.forEach(it => {
+                const s = String(it.str || '').trim();
+                if (!s) return;
+                const t = pdfjsLib.Util.transform(vp.transform, it.transform), h = Math.hypot(t[2], t[3]);
+                out.push({ s: s.slice(0, 80), x: +(t[4] * k).toFixed(1), y: +((t[5] - h) * k + dy).toFixed(1), w: +(it.width * vp.scale * k).toFixed(1), h: +(h * k).toFixed(1), ocr: 0 });
+            });
+            return out;
+        } catch (e) { console.warn('pdfPageTexts:', e); return []; }
+    }
+    const CYR = { 'К': 'K', 'Х': 'X', 'Н': 'H', 'М': 'M', 'Р': 'P', 'В': 'B', 'С': 'C', 'А': 'A', 'Е': 'E', 'О': 'O', 'Т': 'T', 'У': 'Y' };
+    const canonArt = s => String(s).toUpperCase().replace(/[А-Я]/g, c => CYR[c] || c).replace(/N/g, 'H').replace(/\s/g, '');
+    function findCatalogArt(s) { return Object.keys(catalog.panels).find(k => canonArt(k) === canonArt(s)) || null; }
+    function iouRect(a, b) {
+        const x1 = Math.max(a.x, b.x), y1 = Math.max(a.y, b.y), x2 = Math.min(a.x + a.w, b.x + b.w), y2 = Math.min(a.y + a.h, b.y + b.h);
+        const inter = Math.max(0, x2 - x1) * Math.max(0, y2 - y1), uni = a.w * a.h + b.w * b.h - inter;
+        return uni > 0 ? inter / uni : 0;
+    }
+    function autoLineColor(d) {
+        const h = {};
+        for (let i = 0; i < d.length; i += 16) {
+            const r = d[i], g = d[i + 1], b = d[i + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+            if (mx - mn > 40 && mx < 200) {
+                const k = (r >> 5) + ',' + (g >> 5) + ',' + (b >> 5), o = h[k] || (h[k] = { n: 0, r: 0, g: 0, b: 0 });
+                o.n++; o.r += r; o.g += g; o.b += b;
+            }
+        }
+        let best = null;
+        for (const k in h) if (!best || h[k].n > best.n) best = h[k];
+        return best && best.n > 30 ? [best.r / best.n | 0, best.g / best.n | 0, best.b / best.n | 0] : [0, 0, 0];
+    }
+    function dilateMask(m, w, h, r) {
+        const t = new Uint8Array(w * h), o = new Uint8Array(w * h);
+        for (let y = 0; y < h; y++) {
+            const c = new Int32Array(w + 1);
+            for (let x = 0; x < w; x++) c[x + 1] = c[x] + m[y * w + x];
+            for (let x = 0; x < w; x++) t[y * w + x] = c[Math.min(w, x + r + 1)] - c[Math.max(0, x - r)] > 0 ? 1 : 0;
+        }
+        for (let x = 0; x < w; x++) {
+            const c = new Int32Array(h + 1);
+            for (let y = 0; y < h; y++) c[y + 1] = c[y] + t[y * w + x];
+            for (let y = 0; y < h; y++) o[y * w + x] = c[Math.min(h, y + r + 1)] - c[Math.max(0, y - r)] > 0 ? 1 : 0;
+        }
+        return o;
+    }
+    function detectPanelRects(imgData, W, H) {
+        const d = imgData.data, g = Math.max(1, Math.round(Math.max(W, H) / 1200)), gw = Math.ceil(W / g), gh = Math.ceil(H / g);
+        const col = autoLineColor(d), t2 = 70 * 70, m = new Uint8Array(gw * gh);
+        for (let y = 0; y < H; y++) {
+            const row = ((y / g) | 0) * gw;
+            for (let x = 0; x < W; x++) {
+                const i = (y * W + x) * 4, a = d[i] - col[0], b = d[i + 1] - col[1], c = d[i + 2] - col[2];
+                if (a * a + b * b + c * c < t2) m[row + ((x / g) | 0)] = 1;
+            }
+        }
+        const found = [];
+        for (const pct of [1.6, 3, 5]) {
+            const r = Math.max(1, Math.round(pct / 100 * gw)), dm = dilateMask(m, gw, gh, r);
+            const lab = new Int32Array(gw * gh), st = new Int32Array(gw * gh), res = [];
+            let n = 0;
+            for (let s = 0; s < gw * gh; s++) {
+                if (dm[s] || lab[s]) continue;
+                n++;
+                let sp = 0, cnt = 0, x1 = gw, y1 = gh, x2 = 0, y2 = 0, edge = false;
+                st[sp++] = s; lab[s] = n;
+                while (sp) {
+                    const p = st[--sp], x = p % gw, y = (p / gw) | 0;
+                    cnt++;
+                    if (x < x1) x1 = x; if (x > x2) x2 = x; if (y < y1) y1 = y; if (y > y2) y2 = y;
+                    if (!x || !y || x === gw - 1 || y === gh - 1) edge = true;
+                    for (const q of [x > 0 ? p - 1 : -1, x < gw - 1 ? p + 1 : -1, y > 0 ? p - gw : -1, y < gh - 1 ? p + gw : -1]) {
+                        if (q >= 0 && !dm[q] && !lab[q]) { lab[q] = n; st[sp++] = q; }
+                    }
+                }
+                const bw = x2 - x1 + 1, bh = y2 - y1 + 1, fr = cnt / (gw * gh);
+                if (!edge && fr > 0.004 && fr < 0.8 && cnt / (bw * bh) > 0.6) {
+                    const X = Math.max(0, (x1 - r) * g), Y = Math.max(0, (y1 - r) * g);
+                    res.push({ x: X, y: Y, w: Math.min(W - X, (bw + 2 * r) * g), h: Math.min(H - Y, (bh + 2 * r) * g), fill: cnt / (bw * bh) });
+                }
+            }
+            res.forEach(o => {
+                const dup = found.some(f => {
+                    const ix = Math.max(0, Math.min(f.x + f.w, o.x + o.w) - Math.max(f.x, o.x)), iy = Math.max(0, Math.min(f.y + f.h, o.y + o.h) - Math.max(f.y, o.y));
+                    return ix * iy > 0.3 * Math.min(f.w * f.h, o.w * o.h);
+                });
+                if (!dup) found.push(o);
+            });
+        }
+        found.sort((a, b) => a.x - b.x || a.y - b.y);
+        return found;
+    }
+    function textNumbers() {
+        return pdfTexts.map(t => t.s.replace(/\s/g, '')).filter(s => /^\d{3,5}$/.test(s)).map(Number).filter(n => n >= 100);
+    }
+    function snapToText(v) {
+        const n = textNumbers().find(n => Math.abs(n / v - 1) < 0.015);
+        return n || Math.round(v);
+    }
+    function scaleFromTexts(rects) {
+        const ns = textNumbers(), ds = [];
+        rects.forEach(r => ds.push(r.w, r.h));
+        let best = 0, bs = 0;
+        for (const n of ns) for (const dd of ds) {
+            const r = n / dd; let s = 0;
+            for (const n2 of ns) for (const d2 of ds) if (Math.abs(n2 / d2 / r - 1) < 0.012) s++;
+            if (s > bs) { bs = s; best = r; }
+        }
+        return bs >= 2 ? best : 0;
+    }
+    function readStamp() {
+        const tx = pdfTexts.filter(t => !t.ocr), all = tx.map(t => t.s).join('\n'), o = { art: null, artRaw: '', profile: '', ral: '', title: '', notes: [] };
+        let a = all.match(/Панель\s*:?\s*([A-Za-zА-Яа-я0-9\/\-]+)/i);
+        if (a) { o.artRaw = a[1]; o.art = findCatalogArt(a[1]); }
+        a = all.match(/Профиль\s*:?\s*([^\n]+)/i); if (a) o.profile = a[1].trim();
+        a = all.match(/RAL\s*-?\s*\d{4}/i); if (a) o.ral = a[0].replace(/\s/g, '').toUpperCase();
+        const note = /щит|отступ|вырез|проем|проём|розетк|шкаф|ниш|\d{2,4}\s*[хxХ×]\s*\d{2,4}/i;
+        o.notes = tx.filter(t => note.test(t.s)).map(t => t.s);
+        const t = tx.filter(t => t.s.length > 2 && !/[:\d]/.test(t.s) && !note.test(t.s)).sort((p, q) => p.y - q.y || p.x - q.x)[0];
+        if (t) o.title = t.s;
+        return o;
+    }
+    async function ocrDigits(W, H) {
+        if (!window.Tesseract) await new Promise((ok, no) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+            s.onload = ok; s.onerror = no; document.head.appendChild(s);
+        });
+        const w = await Tesseract.createWorker('eng');
+        await w.setParameters({ tessedit_char_whitelist: '0123456789', tessedit_pageseg_mode: '11' });
+        const c1 = document.createElement('canvas'); c1.width = W; c1.height = H;
+        const x1 = c1.getContext('2d'); x1.fillStyle = '#fff'; x1.fillRect(0, 0, W, H); x1.drawImage(img, 0, 0);
+        const c2 = document.createElement('canvas'); c2.width = H; c2.height = W;
+        const x2 = c2.getContext('2d'); x2.translate(H, 0); x2.rotate(Math.PI / 2); x2.drawImage(c1, 0, 0);
+        const a = (await w.recognize(c1)).data.words || [], b = (await w.recognize(c2)).data.words || [];
+        await w.terminate();
+        pdfTexts = pdfTexts.filter(t => !t.ocr);
+        a.forEach(o => pdfTexts.push({ s: o.text, x: o.bbox.x0, y: o.bbox.y0, w: o.bbox.x1 - o.bbox.x0, h: o.bbox.y1 - o.bbox.y0, ocr: 1 }));
+        b.forEach(o => pdfTexts.push({ s: o.text, x: o.bbox.y0, y: H - o.bbox.x1, w: o.bbox.y1 - o.bbox.y0, h: o.bbox.x1 - o.bbox.x0, ocr: 1 }));
+    }
+    async function autoDetectPanels() {
+        if (!img.src || !img.width) { alert("Сначала загрузите PDF-развёртку."); return; }
+        const btn = document.getElementById('btnAutoDetect');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Анализ...</span>';
+        btn.disabled = true;
+        try {
+            const W = img.width, H = img.height;
+            const cvs = document.createElement('canvas'); cvs.width = W; cvs.height = H;
+            const c = cvs.getContext('2d', { willReadFrequently: true });
+            c.fillStyle = '#ffffff'; c.fillRect(0, 0, W, H); c.drawImage(img, 0, 0);
+            const rects = detectPanelRects(c.getImageData(0, 0, W, H), W, H);
+            if (!rects.length) { alert("Контуры панелей не найдены. Обведите панели инструментом «Панель» вручную."); return; }
+            let scale = scaleFromTexts(rects), how = 'из текста чертежа';
+            if (!scale) {
+                try { await ocrDigits(W, H); scale = scaleFromTexts(rects); how = 'OCR цифр'; } catch (e) { console.warn('OCR:', e); }
+            }
+            if (!scale) {
+                const widest = rects.reduce((a, b) => b.w > a.w ? b : a);
+                const v = parseFloat(prompt('Размеры в PDF не распознаны. Введите реальную ширину самой широкой найденной панели, мм:', ''));
+                if (v > 0) { scale = v / widest.w; how = 'калибровка по вашей ширине'; }
+            }
+            const wallW0 = parseFloat(document.getElementById('wallW').value) || 3000;
+            const wallH0 = parseFloat(document.getElementById('wallH').value) || 2800;
+            if (!scale) { scale = 0; how = 'по размерам стены (приблизительно)'; }
+            let filtered = rects.filter(r => !zones.some(z => iouRect({ x: z.x, y: z.y, w: z.w, h: z.h }, r) > 0.5)).slice(0, 30);
+            if (!filtered.length) { alert("Новых панелей не найдено."); return; }
+            pushHistory();
+            const panelArt = document.getElementById('panelType').value;
+            const newZones = filtered.map((r, i) => ({
+                id: 'z' + Date.now() + i + Math.floor(Math.random() * 1000),
+                type: 'panel',
+                x: r.x, y: r.y, w: r.w, h: r.h,
+                realWidth: scale ? snapToText(r.w * scale) : Math.round((r.w / img.width) * wallW0),
+                realHeight: scale ? snapToText(r.h * scale) : Math.round((r.h / img.height) * wallH0),
+                isPoly: false, qty: 1,
+                panelArt: panelArt, louverArt: null
+            }));
+            zones = zones.concat(newZones);
+            const st = readStamp(), info = [];
+            if (st.art) {
+                const sel = document.getElementById('panelType');
+                sel.value = st.art;
+                if (sel.value === st.art) {
+                    const lk = Object.keys(catalog.louvers).find(k => k.split('#')[0] === st.art);
+                    if (lk) document.getElementById('louverWidth').value = lk;
+                    updatePricesFromCatalog();
+                    info.push('Панель: ' + st.art);
+                }
+            } else if (st.artRaw) info.push('Артикул «' + st.artRaw + '» не найден — выберите вручную');
+            if (st.profile) info.push('Профиль: ' + st.profile);
+            if (st.ral) info.push(st.ral);
+            if (st.title) info.push('Стена: ' + st.title);
+            if (scale) {
+                const all = zones.filter(z => z.type !== 'louver');
+                if (all.length) {
+                    const minX = Math.min(...all.map(z => z.x)), maxX = Math.max(...all.map(z => z.x + z.w));
+                    const hh = Math.max(...all.map(z => parseFloat(z.realHeight) || 0));
+                    if (hh > 0) { document.getElementById('wallH').value = hh; lastWallH = hh; }
+                    const ww = Math.round((maxX - minX) * scale);
+                    if (ww > 0) document.getElementById('wallW').value = ww;
+                }
+            }
+            renderList(); calculate(); redrawCanvas(); scheduleSave();
+            alert(`Найдено зон: ${newZones.length}. Размеры: ${how}.\n` + (info.length ? info.join('\n') + '\n' : '') +
+                (st.notes.length ? 'Примечания: ' + st.notes.join('; ') + '\n' : '') +
+                'Проверьте обводку и числа в списке.');
+        } catch (err) {
+            console.error("Ошибка распознавания:", err);
+            alert("Произошла ошибка при анализе PDF.");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+</script>
+
+<script>
+    /* ===== Каталог панелей (карточки, цены) ===== */
+    const META_DEF={"H006-H": ["Серия Дерево", 3, 1, 1, 1], "H198-Y": ["Серия Дерево", 3, 1, 1, 1], "H003-H": ["Серия Дерево", 3, 1, 1, 1], "K01-194N": ["Серия Дерево", 2, 1, 1, 1], "K01-204N": ["Серия Дерево", 2, 1, 1, 1], "K01-203N": ["Серия Дерево", 2, 1, 1, 1], "K01-174X": ["Серия Мрамор", 0, null, null, null], "K01-176X": ["Серия Мрамор", 0, null, null, null], "M/P-089R": ["Серия Мрамор", 0, null, null, null], "H127-PP2": ["Однотонная матовая", 0, null, null, null], "H234-YP": ["Однотонная глянец", 0, 1, null, null], "H072-YP": ["Однотонная матовая", 0, null, null, null], "H205-YP": ["Однотонная матовая", 4, 1, 1, 1], "K01-187N": ["Однотонная матовая", 3, 1, 1, 1], "K01-17N": ["Однотонная матовая", 0, 1, null, null], "K01-135X": ["Серия Ткань", 0, 1, null, null], "K01-136X": ["Серия Ткань", 0, 1, null, null], "H098-F": ["Серия Ткань", 0, 1, null, null], "H093-F": ["Серия Ткань", 0, 1, null, null], "K01-38M": ["Серия Ткань", 3, 1, 1, 1], "K01-53N": ["Серия Ткань", 0, 1, null, null, "K01-53H"], "H149-PP1": ["Серия Ткань", 4, 1, 1, 1], "K01-03-22X": ["Серия Ткань", 0, 1, null, null], "H241-YP": ["Серия Кожа", 0, 1, null, null], "K01-54H": ["Серия Кожа", 0, 1, null, null], "M/P-001U": ["Мозайка", 0, null, null, null], "K01-18N": ["Оливка", 0, 1, null, null], "M/P-065C": ["Марсала", 0, null, null, null], "M/P-093R": ["Серия Дерево", 4, 0, 1, 0], "M/P-092R": ["Серия Дерево", 4, 0, 1, 0], "254M": ["Серия Ткань", 3, 1, 1, 1, "K01-254M"], "M/Q-96V": ["Металл бронза", 0, null, null, null], "M/Q-95V": ["Металл серебро", 5, 0, 1, 0], "M/P-100Q": ["Серия Ткань", 0, null, null, null], "M/H-271Y": ["Серия Ткань", 0, 1, null, null], "M/H-270Y": ["Серия Ткань", 3, 1, 1, 1], "K01-110X": ["Серия Дерево", 1, 1, 0, 1], "K01-171X": ["Серия Дерево", 1, 1, 0, 1], "H236-YP": ["Однотонная матовая", 0, 1, null, null], "M/H-215Y": ["Серия Мрамор", 0, null, null, null], "M/K01-HM005R": ["Серия Ткань", 4, 0, 1, 0], "K01-62H": ["Серия Ткань", 0, 1, null, null], "K01-63H": ["Серия Ткань", 0, 1, null, null], "K01-120X": ["Серия Ткань", 0, 1, null, null], "K01-127X": ["Серия Ткань", 0, 1, null, null], "K01-124X": ["Серия Ткань", 0, 1, null, null], "K01-133X": ["Серия Ткань", 0, 1, null, null], "QK098X": ["Серия Мрамор", 0, null, null, null], "QK099X": ["Серия Мрамор", 0, null, null, null], "K01-277A": ["Серия Ткань", 0, null, null, null], "K01-140X": ["Серия Мрамор", 0, null, null, null], "K01-206N": ["Серия Дерево", 2, 1, 1, 1], "K01-212H": ["Серия Камень", 0, 1, null, null], "K01-247N": ["Серия Дерево", 2, 1, 1, 1], "M/K02-043T": ["Серия Оливка 5ММ 3m", 0, null, null, null], "M/P-028K": ["Серия Металл", 0, null, null, null], "M/Q-105A": ["Серия Зеркало", 0, null, null, null], "H091-Y": ["Серия Ткань", 0, 1, 1, 1]};
+    let META={};const CAT_KEY='forone_catalog_v34_01';const CAT_REV=1;let catF={q:'',s:'',L:0,D:0,P:0};
+    const PDFCAT={"K01-03-22X":[2,"Ткань",1,1,1],"K01-110X":[3,"Дерево",1,1,1],"K01-135X":[4,"Ткань",1,1,1],"K01-136X":[5,"Ткань",1,1,1],"K01-140X":[6,"Мрамор",1,1,1],"K01-171X":[7,"Дерево",1,1,1],"K01-174X":[8,"Мрамор",1,1,1],"K01-176X":[9,"Мрамор",1,1,1],"QK098X":[10,"Мрамор",1,1,1],"QK099X":[11,"Мрамор",1,1,1],"K01-120X":[12,"Ткань",1,1,1],"K01-124X":[13,"Ткань",1,1,1],"K01-127X":[14,"Ткань",1,1,1],"K01-133X":[15,"Ткань",1,1,1],"K01-212H":[16,"Арт-узор",1,1,1],"K01-53N":[17,"Кожа",1,1,1],"K01-54H":[18,"Кожа",1,1,1],"K01-62H":[19,"Кожа",1,1,1],"K01-63H":[20,"Кожа",1,1,1],"K01-17N":[21,"Skin Feel (матовая)",1,1,1],"K01-18N":[22,"Skin Feel (матовая)",1,1,1],"K01-194N":[23,"Дерево",1,1,1],"K01-203N":[24,"Дерево",1,1,1],"K01-204N":[25,"Дерево",1,1,1],"K01-206N":[26,"Дерево",1,1,1],"K01-247N":[27,"Дерево",1,1,1],"254M":[28,"Ткань",1,1,1],"K01-38M":[29,"Ткань",1,1,1],"K01-187N":[30,"Skin Feel (матовая)",1,1,1],"H093-F":[31,"Ткань",1,1,1],"H098-F":[32,"Ткань",1,1,1],"H003-H":[33,"Дерево",1,1,1],"H006-H":[34,"Дерево",1,1,1],"H198-Y":[35,"Дерево",1,1,1],"M/H-215Y":[36,"Мрамор",1,1,1],"M/H-270Y":[37,"Ткань",1,1,1],"M/H-271Y":[38,"Ткань",1,1,1],"H091-Y":[39,"Ткань",1,1,1],"H072-YP":[40,"Однотонная",1,1,1],"H205-YP":[41,"Однотонная",1,1,1],"H234-YP":[42,"Однотонная",1,1,1],"H236-YP":[43,"Однотонная",1,1,1],"H241-YP":[44,"Кожа",1,1,1],"H149-PP1":[45,"Ткань",1,1,1],"H127-PP2":[46,"Skin Feel (матовая)",1,1,1],"M/P-001U":[47,"Арт-узор",0,0,0],"M/P-100Q":[48,"Ткань",0,0,0],"M/P-065C":[49,"Однотонная",0,1,0],"M/P-089R":[50,"Мрамор",0,1,0],"M/P-092R":[51,"Дерево",0,1,0],"M/P-093R":[52,"Дерево",0,1,0],"M/K01-HM005R":[53,"Ткань",0,0,0],"M/Q-95V":[54,"Металл",0,0,0],"M/Q-96V":[55,"Металл",0,0,0]};
+    const thumbCache={};
+    function thumbUrl(a){
+        if(a in thumbCache)return thumbCache[a];
+        const d=(window.THUMBS||{})[a];let u='';
+        if(d){
+            try{const bin=atob(d),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);u=URL.createObjectURL(new Blob([arr],{type:'image/jpeg'}))}
+            catch(e){u='data:image/jpeg;base64,'+d}
+        }
+        thumbCache[a]=u;return u;
+    }
+    function catInit(){
+        for(const [k,v] of Object.entries(META_DEF))META[k]={art:v[5]||k,series:v[0],stars:v[1],L:v[2],D:v[3],P:v[4]};
+        for(const k of Object.keys(catalog.panels))if(!META[k])META[k]={art:k,series:'',stars:0,L:catalog.louvers[k]?1:null,D:null,P:null};
+        let s=null;
+        try{s=JSON.parse(localStorage.getItem(CAT_KEY)||'null');if(s)catApply(s)}catch(e){s=null}
+        catEnsure();
+        const first=!s||s.rev!==CAT_REV;
+        catPdf(first);
+        if(first)catSave();
+    }
+    function catPdf(flags){
+        for(const [k,v] of Object.entries(PDFCAT)){
+            const m=META[k];if(!m)continue;
+            m.pg=v[0];m.cs=v[1];
+            if(flags){m.L=v[2];m.D=v[3];m.P=v[4]}
+        }
+    }
+    function catKeyOk(k){return typeof k==='string'&&!/['"`\\<>&]/.test(k)}
+    function catMerge(dst,src){if(src&&typeof src==='object')for(const k of Object.keys(src))if(catKeyOk(k)&&src[k]&&typeof src[k]==='object')dst[k]=src[k]}
+    function catEnsure(){for(const k of Object.keys(META))if(!catalog.panels[k])catalog.panels[k]={name:'БП '+(META[k].series||'')+' '+META[k].art,retail:0,partner:0}}
+    function catApply(s){if(!s||typeof s!=='object')return;catMerge(catalog.panels,s.panels);catMerge(catalog.louvers,s.louvers);catMerge(META,s.META);catEnsure()}
+    function catSave(){try{localStorage.setItem(CAT_KEY,JSON.stringify({rev:CAT_REV,panels:catalog.panels,louvers:catalog.louvers,META:META}))}catch(e){}}
+    function catSel(){const a=panelType.value,b=louverWidth.value;populateSelects();panelType.value=a;louverWidth.value=b;try{updatePricesFromCatalog()}catch(e){}}
+    function catOpen(){catM.style.display='block';catSeries();catRender()}
+    function catClose(){catLbClose();catM.style.display='none';catSel()}
+    function catFt(f){catF[f]=catF[f]?0:1;document.getElementById('f'+f).classList.toggle('on',!!catF[f]);catRender()}
+    function catFlag(k,f){const v=META[k][f];META[k][f]=v===1?0:v===0?null:1;catSave();catRender()}
+    function catPrice(k,sec,f,v){if(!catalog[sec][k])catalog[sec][k]={name:'Лувер ('+META[k.split('#')[0]].art+')',retail:0,partner:0};catalog[sec][k][f]=+v||0;catSave()}
+    function catAdd(){const a=nA.value.trim().replace(/[#'"`\\<>&]/g,''),sr=nS.value.trim().replace(/[<>&"]/g,'');if(!a||catalog.panels[a])return;META[a]={art:a,series:sr,stars:0,L:null,D:null,P:null};catalog.panels[a]={name:'БП '+sr+' '+a,retail:0,partner:0};nA.value='';nS.value='';catSave();catSeries();catRender()}
+    function catExport(){catIO.value=JSON.stringify({rev:CAT_REV,panels:catalog.panels,louvers:catalog.louvers,META:META});catIO.select()}
+    function catImport(){try{catApply(JSON.parse(catIO.value));catSave();catSeries();catRender();catSel()}catch(e){alert('Не удалось прочитать данные')}}
+    function catLouvers(k){return Object.keys(catalog.louvers).filter(x=>x===k||x.startsWith(k+'#'))}
+    function catAddL(k){if(!catalog.louvers[k])catalog.louvers[k]={name:'Лувер ('+META[k].art+')',retail:0,partner:0};catSave();catRender()}
+    function catPick(k,lk){
+        if(!catalog.panels[k])return;
+        panelType.value=k;
+        if(lk&&catalog.louvers[lk])louverWidth.value=lk;
+        catClose();
+    }
+    function catSeries(){
+        const cur=catF.s,set=new Set();let none=false;
+        for(const m of Object.values(META)){if(m.cs)set.add(m.cs);else none=true}
+        let h='<option value="">Все серии</option>';
+        for(const s of [...set].sort())h+='<option value="'+esc(s)+'">'+esc(s)+'</option>';
+        if(none)h+='<option value="-">Вне каталога PDF</option>';
+        catS.innerHTML=h;catS.value=[...catS.options].some(o=>o.value===cur)?cur:'';catF.s=catS.value;
+    }
+    function catView(k){
+        const m=META[k];if(!m)return;
+        const p=catalog.panels[k]||{retail:0,partner:0},u=thumbUrl(m.art);
+        const fl=(v,t)=>'<li class="'+(v===1?'y':v===0?'n':'q')+'">'+t+'</li>';
+        catLb.dataset.k=k;
+        clbI.style.backgroundImage=u?'url('+u+')':'none';
+        const lk=catLouvers(k);
+        let pr='<div class="pr">Панель: <b>'+(+p.retail||0).toLocaleString('ru-RU')+'</b> / '+(+p.partner||0).toLocaleString('ru-RU')+' ₸ (розн. / партн.)</div>';
+        for(const x of lk){const l=catalog.louvers[x];pr+='<div class="pr">'+esc(l.name.replace(/ \(.*\)$/,''))+': <b>'+(+l.retail||0).toLocaleString('ru-RU')+'</b> / '+(+l.partner||0).toLocaleString('ru-RU')+' ₸</div>'}
+        clbT.innerHTML='<h4>'+esc(m.art)+'</h4><div class="sub">'+esc(m.cs||m.series||'Серия не указана')+(m.cs&&m.series&&m.series!=='Серия '+m.cs?' · в прайсе: '+esc(m.series):'')+'</div>'
+            +'<div>Материал: BPC бамбук<br>Размер: 1220×3000 мм'+(m.pg?'<br>Страница каталога: '+m.pg:'')+'</div>'
+            +'<ul><li class="y">Плоская панель 1220</li>'+fl(m.L,'Лувер (Shapes Panel)')+fl(m.D,'Скрытая дверь в цвет')+fl(m.P,'Профили в цвет')+'</ul>'+pr;
+        clbP.dataset.lk=lk[0]||'';
+        if(lk.length>1){const sl=document.createElement('select');sl.id='clbL';sl.className='csl';sl.innerHTML=lk.map(x=>'<option value="'+esc(x)+'">'+esc(catalog.louvers[x].name.replace(/ \(.*\)$/,''))+'</option>').join('');clbT.appendChild(sl)}
+        catLb.style.display='block';
+    }
+    function catLbClose(){catLb.style.display='none'}
+    function catRender(){
+        const q=catF.q.toLowerCase();let h='',shown=0,total=Object.keys(META).length;const flt=catF.L||catF.D||catF.P;
+        const inp=(sec,key,f,v)=>'<input type="number" value="'+esc(v)+'" data-sec="'+esc(sec)+'" data-key="'+esc(key)+'" data-f="'+f+'">';
+        let hp='';
+        if(!flt&&!catF.s)for(const [pk,pv] of Object.entries(catalog.profiles)){if(q&&!pv.name.toLowerCase().includes(q))continue;hp+='<div class="cc"><div class="ci"><b>'+esc(pv.name)+'</b><label>Розница / партнёр</label>'+inp('profiles',pk,'retail',pv.retail)+inp('profiles',pk,'partner',pv.partner)+'</div></div>'}
+        const list=Object.entries(META).sort((a,b)=>(a[1].pg||999)-(b[1].pg||999));
+        for(const [k,m] of list){
+            if(q&&!(m.art+' '+m.series+' '+(m.cs||'')).toLowerCase().includes(q))continue;
+            if(catF.s&&(catF.s==='-'?m.cs:m.cs!==catF.s))continue;
+            if((catF.L&&m.L!==1)||(catF.D&&m.D!==1)||(catF.P&&m.P!==1))continue;
+            shown++;
+            const p=catalog.panels[k],u=thumbUrl(m.art);
+            const b=(f,n)=>'<span class="cb '+(m[f]===1?'on':m[f]===0?'off':'')+'" data-act="flag" data-k="'+esc(k)+'" data-f="'+f+'">'+n+'</span>';
+            const lk=catLouvers(k);
+            const lr=lk.map(x=>{const l=catalog.louvers[x];return '<label>'+esc(l.name.replace(/ \(.*\)$/,''))+'</label>'+inp('louvers',x,'retail',l.retail)+inp('louvers',x,'partner',l.partner)}).join('');
+            const addL=(!lk.length&&m.L===1)?'<span class="cadd" data-act="addl" data-k="'+esc(k)+'">+ цена лувера</span>':'';
+            const thumb=u?'<div class="ct" data-act="view" data-k="'+esc(k)+'" style="background-image:url('+u+')" title="Открыть"></div>':'<div class="ct no">нет образца</div>';
+            const lsel=lk.length>1?'<select class="csl" data-sel="'+esc(k)+'">'+lk.map(x=>'<option value="'+esc(x)+'">'+esc(catalog.louvers[x].name.replace(/ \(.*\)$/,''))+'</option>').join('')+'</select>':'';
+            const lpick=lk.length?lsel+'<button data-act="pick" data-k="'+esc(k)+'" data-lk="'+esc(lk[0])+'"'+(lk.length>1?' data-usel="1"':'')+'>Панель + лувер</button>':'';
+            h+='<div class="cc">'+thumb+'<div class="ci"><b>'+esc(m.art)+'</b> <small>'+esc(m.cs||m.series||'')+' '+'★'.repeat(Math.max(0,Math.min(5,+m.stars||0)))+'</small>'
+                +'<div class="cbs">'+b('L','Лувер')+b('D','Дверь')+b('P','Профиль')+'</div><label>Панель</label>'+inp('panels',k,'retail',p.retail)+inp('panels',k,'partner',p.partner)+lr+addL
+                +'<div class="cact"><button class="pri" data-act="pick" data-k="'+esc(k)+'">В расчёт</button>'+lpick+'</div></div></div>';
+        }
+        catG.innerHTML=(h+hp)||'Ничего не найдено';
+        catN.textContent=shown+' из '+total;
+    }
+    catG.addEventListener('click',function(e){
+        const t=e.target.closest('[data-act]');if(!t)return;
+        const k=t.dataset.k,a=t.dataset.act;
+        if(a==='flag')catFlag(k,t.dataset.f);
+        else if(a==='addl')catAddL(k);
+        else if(a==='view')catView(k);
+        else if(a==='pick'){let lk=t.dataset.lk||'';if(t.dataset.usel){const sl=t.parentNode.querySelector('select');if(sl)lk=sl.value}catPick(k,lk)}
+    });
+    catG.addEventListener('change',function(e){
+        const t=e.target;if(t.dataset&&t.dataset.sec)catPrice(t.dataset.key,t.dataset.sec,t.dataset.f,t.value);
+    });
+    catLb.addEventListener('click',function(e){if(e.target===catLb)catLbClose()});
+    clbX.addEventListener('click',catLbClose);
+    clbP.addEventListener('click',function(){const sl=document.getElementById('clbL');catPick(catLb.dataset.k,sl?sl.value:(clbP.dataset.lk||''))});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(catLb.style.display==='block')catLbClose();else if(catM.style.display==='block')catClose()}});
+    catInit();
+</script>
+
+<script>
+/* ========================================================================
+ * ⚠️ ВАЖНО: БАЗА ОБРАЗЦОВ КАТАЛОГА (window.THUMBS)
+ * ========================================================================
+ * В этой версии блок с base64-изображениями удалён (он занимает ~500 КБ).
+ * Всё работает без него — только в каталоге вместо миниатюр будет
+ * «нет образца».
+ *
+ * ЕСЛИ НУЖНЫ ОБРАЗЦЫ:
+ * Откройте оригинальный файл forone_pro_v41_pdf.html в редакторе,
+ * найдите блок:
+ *
+ *     window.THUMBS={"H003-H":"/9j/4AAQ...","H006-H":"/9j/...", ... };
+ *
+ * Скопируйте его целиком и вставьте сюда вместо строки ниже.
+ * ======================================================================== */
+window.THUMBS = window.THUMBS || {};
+</script>
+</body>
+</html>
